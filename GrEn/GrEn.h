@@ -4,4 +4,5 @@
 namespace GrEn
 {
 	exception initialize();
+	void finish();
 }
