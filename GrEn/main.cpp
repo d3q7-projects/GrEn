@@ -2,7 +2,9 @@
 #include "GrEnDefinitions.h"
 #include "Window.h"
 #include <SDL.h>
+#include <chrono>
 #include <iostream>
+#include "Timer.h"
 
 
 void draw() {
@@ -10,12 +12,11 @@ void draw() {
 	Window window("ooly", e);
 	CHECK(e);
 	window.fill({ 0, 1, 0, 1 });
-	Window window2("ooly2", e);
-	CHECK(e);
 
 	bool first = true;
-	bool second = true;
-	while (first || second)
+	int num = 0;
+	Timer t; 
+	while (first)
 	{
 		windowEvent events = Window::getEvents();
 		if (first && events.quit == &window)
@@ -27,15 +28,11 @@ void draw() {
 		{
 			window.update();
 		}
-
-		if (second && events.quit == &window2)
+		double diff = t.tickAndReset();
+		num++;
+		if (num % 1 == 0)
 		{
-			second = false;
-			window2.destroy();
-		}
-		else
-		{
-			window2.update();
+			std::cout << 1/t.getAverage()*1000 << std::endl;
 		}
 	}
 }
