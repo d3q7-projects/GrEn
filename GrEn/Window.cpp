@@ -4,33 +4,66 @@
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
 
+std::map<void*, Window*> Window::windowAssociation;
+
 Window::Window(const std::string& name, GrEn::exception& e)
 {
 	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
-	if (window == NULL)
-	{
-		e = SDL_WINDOW_CREATE_FAIL;
-	}
-	else {
-		e = NO_EXCEP;
-	}
+	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
+
+	this->windowSurface = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	this->width = DEFAULT_WIDTH;
 	this->height = DEFAULT_WIDTH;
 	this->state = windowState::maximized;
+	Window::windowAssociation[this->window] = this;
 }
 
 Window::~Window()
 {
 	if (this->window)
 	{
-		SDL_DestroyWindow(this->window);
+		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));
 	}
 }
 
-int Window::getHeight() 
+windowEvent Window::getEvents()
+{
+	SDL_Event sdlEvent;
+	windowEvent event = { 0 };
+	while (SDL_PollEvent(&sdlEvent)) {
+		if (sdlEvent.type == SDL_WINDOWEVENT) {
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
+				event.quit = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+				event.minimize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				event.focused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				event.unfocused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_MAXIMIZED) {
+				event.maximize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				event.resized = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_HIT_TEST) {
+				event.clicked = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			}
+
+		}
+	}
+
+	return event;
+}
+
+int Window::getHeight()
 {
 	if (this->window){
-		SDL_GetWindowSizeInPixels(this->window, &(this->width), &(this->height));
+		SDL_GetWindowSizeInPixels(reinterpret_cast<SDL_Window*>(this->window), &(this->width), &(this->height));
 	}
 	return this->height;
 }
@@ -38,7 +71,7 @@ int Window::getHeight()
 int Window::getWidth()
 {
 	if (this->window){
-		SDL_GetWindowSizeInPixels(this->window, &(this->width), &(this->height));
+		SDL_GetWindowSizeInPixels(reinterpret_cast<SDL_Window*>(this->window), &(this->width), &(this->height));
 	}
 	return this->width;
 }
@@ -46,7 +79,7 @@ int Window::getWidth()
 void Window::setHeight(const int height)
 {
 	if (this->window){
-		SDL_SetWindowSize(this->window, this->width, height);
+		SDL_SetWindowSize(reinterpret_cast<SDL_Window*>(this->window), this->width, height);
 	}
 	this->height = height;
 }
@@ -54,38 +87,31 @@ void Window::setHeight(const int height)
 void Window::setWidth(const int width)
 {
 	if (this->window){
-		SDL_SetWindowSize(this->window, width, this->height);
+		SDL_SetWindowSize(reinterpret_cast<SDL_Window*>(this->window), width, this->height);
 	}
 	this->width = width;
 }
 
 void Window::destroy(){
 	if (this->window) {
-		SDL_DestroyWindow(this->window);
+		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));
 	}
 }
 
-windowEvent Window::update()
+void Window::update()
 {
-	SDL_UpdateWindowSurface(window);
+	SDL_UpdateWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 
-	SDL_Event sdlEvent;
-	windowEvent event = windowEvent::none;
-	bool quit = false;
-	while (SDL_PollEvent(&sdlEvent)){
-		if (sdlEvent.type == SDL_WINDOWEVENT) {
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
-				event = windowEvent::quit;
-			}
-		}
-	}
-	
-	return event;
+}
+
+void Window::fill(GrEn::rgba color)
+{
+	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowSurface), NULL, GrEn::rgbaToHex(color));
 }
 
 windowState Window::getState() const
 {
-	switch (SDL_GetWindowFlags(this->window))
+	switch (SDL_GetWindowFlags(reinterpret_cast<SDL_Window*>(this->window)))
 	{
 	case SDL_WINDOW_FULLSCREEN:
 		return windowState::fullscreen;
@@ -103,15 +129,15 @@ void Window::setState(windowState state) const
 	switch (state)
 	{
 	case windowState::floating:
-		SDL_SetWindowFullscreen(this->window, 0);
-		SDL_RestoreWindow(this->window);
+		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
+		SDL_RestoreWindow(reinterpret_cast<SDL_Window*>(this->window));
 		break;
 	case windowState::maximized:
-		SDL_SetWindowFullscreen(this->window, 0);
-		SDL_MaximizeWindow(this->window);
+		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
+		SDL_MaximizeWindow(reinterpret_cast<SDL_Window*>(this->window));
 		break;
 	case windowState::fullscreen:
-		SDL_SetWindowFullscreen(this->window, SDL_WINDOW_FULLSCREEN);
+		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), SDL_WINDOW_FULLSCREEN);
 		break;
 	default:
 		break;

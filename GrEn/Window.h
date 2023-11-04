@@ -2,6 +2,8 @@
 #include <SDL.h>
 #include <string>
 #include "GrEnException.h"
+#include "GrEnDefinitions.h"
+#include <map>
 
 enum class windowState
 {
@@ -11,39 +13,46 @@ enum class windowState
 	unknown
 };
 
-enum class windowEvent
+class Window;
+
+struct windowEvent
 {
-	quit,
-	//TODO: the following
-	maximize,
-	minimize,
-	resized,
-	focused,
-	unfocused,
-	clicked,
-	none
+	Window* quit;
+	Window* maximize;
+	Window* minimize;
+	Window* resized;
+	Window* focused;
+	Window* unfocused;
+	Window* clicked;
 };
 
 class Window
 {
 public:
-	~Window();
 	Window(const std::string& name, GrEn::exception &e);
+	//TODO: add more constructors
 	//Window(const int width, const int height, GrEn::exception& e);
 	//Window(const int width, const int height, const windowState state, GrEn::exception& e);
+	~Window();
+
+	static windowEvent getEvents();
 	int getHeight();
 	int getWidth() ;
 	void setHeight(const int height);
 	void setWidth(const int width);
-	//This function doesn't have to be called as it is called by the destructor
-	void destroy();
-	windowEvent update();
 	windowState getState() const;
 	void setState(windowState state) const;
+
+	//This function doesn't have to be called as it is called by the destructor
+	void destroy();
+	void update();
+
+	void fill(GrEn::rgba color);
 	
 private:
-	SDL_Window* window;
-	SDL_Surface* windowSurface;
+	static std::map<void*, Window*> windowAssociation;
+	void* window;
+	void* windowSurface;
 	windowState state;
 	int width;
 	int height;
