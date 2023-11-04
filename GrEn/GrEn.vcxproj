@@ -92,12 +92,14 @@
     <ClCompile Include="GrEnDefinitions.cpp" />
     <ClCompile Include="GrEnException.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h" />
     <ClInclude Include="GrEnDefinitions.h" />
     <ClInclude Include="GrEnException.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
