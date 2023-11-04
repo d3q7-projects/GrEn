@@ -37,11 +37,13 @@ public:
 
 	static windowEvent getEvents();
 	int getHeight();
-	int getWidth() ;
+	int getWidth();
 	void setHeight(const int height);
 	void setWidth(const int width);
 	windowState getState() const;
-	void setState(windowState state) const;
+	void setState(const windowState state) const;
+	std::string getTitle() const;
+	void setTitle(const std::string title);
 
 	//This function doesn't have to be called as it is called by the destructor
 	void destroy();

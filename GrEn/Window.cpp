@@ -68,7 +68,7 @@ int Window::getHeight()
 	return this->height;
 }
 
-int Window::getWidth()
+int Window::getWidth() 
 {
 	if (this->window){
 		SDL_GetWindowSizeInPixels(reinterpret_cast<SDL_Window*>(this->window), &(this->width), &(this->height));
@@ -124,7 +124,7 @@ windowState Window::getState() const
 	}
 }
 
-void Window::setState(windowState state) const
+void Window::setState(const windowState state) const
 {
 	switch (state)
 	{
@@ -143,3 +143,14 @@ void Window::setState(windowState state) const
 		break;
 	}
 }
+
+std::string Window::getTitle() const
+{
+	return SDL_GetWindowTitle(reinterpret_cast<SDL_Window*>(this->window));
+}
+
+void Window::setTitle(const std::string title)
+{
+	SDL_SetWindowTitle(reinterpret_cast<SDL_Window*>(this->window), title.c_str());
+}
+
