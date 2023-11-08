@@ -25,6 +25,7 @@ namespace GrEn
 		hexColor(unsigned int v) : value(v) {}
 		hexColor(byte r, byte g, byte b, byte a) : ch({b, g, r, a}) {}
 	};
+	
 	hexColor rgbaToHex(rgba color);
 	rgba aOverBrgba(rgba a, rgba b);
 	hexColor aOverBhex(hexColor a, hexColor b);

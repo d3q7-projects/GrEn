@@ -1,12 +1,24 @@
 #include "Rectangle.h"
+#include <string.h>
 
-void Rectangle::draw(void* frame, void* frameExtras) const
+void Rectangle::draw(void* frame, void* frameExtras, const int width, const int height) const
 {
 	unsigned int* unraveledFrame = reinterpret_cast<unsigned int*>(frame);
-
+	
+	const int heightBoundClamped = this->y + this->height >= height ? height - 1 : (this->y + this->height < 0 ? 0 : this->y + this->height);
+	const int widthClamped = this->x + this->width >= width ? width - this->x -1 : (this->x + this->width < 0 ? 0 : this->width);
+	for (int j = this->y; j < heightBoundClamped; j++)
+	{
+		for (int i = this->x; i < this->x + widthClamped; i++)
+		{
+			//TODO: fix the following poopoo
+			*(unraveledFrame + i + width * j) = this->color.value;
+		}
+		//memset(&unraveledFrame[width * j + this->x], this->color.value, widthClamped * sizeof(this->color.value));
+	}
 }
 
-Rectangle::Rectangle(int x, int y, int width, int length, GrEn::rgba color) : x(x), y(y), width(width), length(length), color(color)
+Rectangle::Rectangle(int x, int y, int width, int height, GrEn::hexColor color) : x(x), y(y), width(width), height(height), color(color)
 {
 }
 
@@ -25,12 +37,12 @@ void Rectangle::setWidth(const int width)
 	this->width = width;
 }
 
-void Rectangle::setLength(const int length)
+void Rectangle::setHeight(const int height)
 {
-	this->length = length;
+	this->height = height;
 }
 
-void Rectangle::setColor(const GrEn::rgba color)
+void Rectangle::setColor(const GrEn::hexColor color)
 {
 	this->color = color;
 }
@@ -50,12 +62,12 @@ int Rectangle::getWidth() const
 	return this->width;
 }
 
-int Rectangle::getLength() const
+int Rectangle::getHeight() const
 {
-	return this->length;
+	return this->height;
 }
 
-GrEn::rgba Rectangle::getColor() const
+GrEn::hexColor Rectangle::getColor() const
 {
 	return this->color;
 }

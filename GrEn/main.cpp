@@ -5,7 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include "Timer.h"
-
+#include "Rectangle.h"
 
 void draw() {
 	GrEn::exception e;
@@ -13,6 +13,7 @@ void draw() {
 	CHECK(e);
 
 	GrEn::hexColor color(0xFF0FF0FF);
+	Rectangle rect(40, 200, 300, 400, 0xFFFF0000);
 	window.fill(color);
 
 	float blueness = 0.0f;
@@ -30,6 +31,7 @@ void draw() {
 		else
 		{
 			window.fill(color);
+			window.draw(rect);
 			window.update();
 		}
 		double diff = t.tickAndReset();
