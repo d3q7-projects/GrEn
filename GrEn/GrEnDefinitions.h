@@ -1,17 +1,8 @@
 #pragma once
+#include "GrEnColors.h"
 
 namespace GrEn
 {
-	typedef struct rgba
-	{
-		float r;
-		float g;
-		float b;
-		float a;
-	} rgba;
-	
-	typedef unsigned int hexColor;
-	hexColor rgbaToHex(rgba color);
 
 	typedef struct material {
 		rgba diffuse;
@@ -54,7 +45,7 @@ namespace GrEn
 		vec3<float> vertex[3];
 		vec3<float> normal[3];
 		vec2<float> uv[3];
-	};
+	} Triangle;
 	template<typename T>
 	void mat3Add(mat3<T> a, mat3<T> b, mat3<T>& c)
 	{

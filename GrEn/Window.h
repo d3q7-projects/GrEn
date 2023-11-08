@@ -3,6 +3,7 @@
 #include <string>
 #include "GrEnException.h"
 #include "GrEnDefinitions.h"
+#include "Shape2D.h"
 #include <map>
 
 enum class windowState
@@ -44,17 +45,20 @@ public:
 	void setState(const windowState state) const;
 	std::string getTitle() const;
 	void setTitle(const std::string title);
+	void draw(const Shape2D& shape);
 
 	//This function doesn't have to be called as it is called by the destructor
 	void destroy();
 	void update();
 
 	void fill(GrEn::rgba color);
+	void fill(GrEn::hexColor color);
 	
 private:
 	static std::map<void*, Window*> windowAssociation;
 	void* window;
-	void* windowSurface;
+	void* windowFrame;
+	void* windowFrameExtras;
 	windowState state;
 	int width;
 	int height;
