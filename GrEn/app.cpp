@@ -12,8 +12,10 @@ void draw() {
 	Window window("ooly", e);
 	CHECK(e);
 
-	GrEn::hexColor color(0xFF0FF0FF);
-	Rectangle rect(40, 200, 300, 400, 0xFFFF0000);
+	GrEn::hexColor color(0x00000000);
+	//fix them not blending properly
+	Rectangle rect(40, 200, 300, 400 , 0x80FF0000);
+	Rectangle rect1(40, 200, 400, 300, 0x200000FF);
 	window.fill(color);
 
 	float blueness = 0.0f;
@@ -31,6 +33,7 @@ void draw() {
 		else
 		{
 			window.fill(color);
+			window.draw(rect1);
 			window.draw(rect);
 			window.update();
 		}

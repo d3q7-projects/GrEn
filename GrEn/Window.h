@@ -31,7 +31,7 @@ class Window
 {
 public:
 	Window(const std::string& name, GrEn::exception &e);
-	//TODO: add more constructors
+	//TODO: (priority: 2) add more constructors
 	//Window(const int width, const int height, GrEn::exception& e);
 	//Window(const int width, const int height, const windowState state, GrEn::exception& e);
 	~Window();

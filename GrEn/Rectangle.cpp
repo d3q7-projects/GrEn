@@ -1,20 +1,21 @@
 #include "Rectangle.h"
+#include "SDL.h"
+#include "GrEnColors.h"
 #include <string.h>
 
 void Rectangle::draw(void* frame, void* frameExtras, const int width, const int height) const
 {
-	unsigned int* unraveledFrame = reinterpret_cast<unsigned int*>(frame);
+	GrEn::hexColor* unraveledFrame = reinterpret_cast<GrEn::hexColor*>(frame);
 	
-	const int heightBoundClamped = this->y + this->height >= height ? height - 1 : (this->y + this->height < 0 ? 0 : this->y + this->height);
-	const int widthClamped = this->x + this->width >= width ? width - this->x -1 : (this->x + this->width < 0 ? 0 : this->width);
+	const int heightBoundClamped = this->y + this->height >= height ? height : (this->y + this->height < 0 ? 0 : this->y + this->height);
+	const int widthClamped = this->x + this->width >= width ? width - this->x : (this->x + this->width < 0 ? 0 : this->width);
 	for (int j = this->y; j < heightBoundClamped; j++)
 	{
 		for (int i = this->x; i < this->x + widthClamped; i++)
 		{
-			//TODO: fix the following poopoo
-			*(unraveledFrame + i + width * j) = this->color.value;
+			*(unraveledFrame + i + width * j) = GrEn::aOverBhex(this->color, unraveledFrame[i + width * j]);
 		}
-		//memset(&unraveledFrame[width * j + this->x], this->color.value, widthClamped * sizeof(this->color.value));
+		
 	}
 }
 

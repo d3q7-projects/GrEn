@@ -163,6 +163,6 @@ void Window::setTitle(const std::string title)
 void Window::draw(const Shape2D& shape)
 {
 	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
-	shape.draw(this->windowFrame, this->windowFrameExtras, this->width, this->height);
+	shape.draw(reinterpret_cast<SDL_Surface*>(this->windowFrame)->pixels, this->windowFrameExtras, this->getWidth(), this->getHeight());
 }
 

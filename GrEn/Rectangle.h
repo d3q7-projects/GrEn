@@ -6,7 +6,7 @@ class Rectangle :
     public Shape2D
 {
 public:
-    Rectangle(int x, int y, int width, int length, GrEn::hexColor color);
+    Rectangle(int x, int y, int width, int height, GrEn::hexColor color);
     void setX(const int x);
     void setY(const int y);
     void setWidth(const int width);
