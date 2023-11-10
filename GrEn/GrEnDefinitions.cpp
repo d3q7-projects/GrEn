@@ -57,6 +57,17 @@ GrEn::hexColor GrEn::aOverBhex(hexColor a, hexColor b)
 		};
 
 	}
+	else if (b.ch.a == 0)
+	{
+		//Simplifies to:	A_o = A_a
+		//					C_o = (C_a*A_a)
+		return {
+			static_cast<GrEn::byte>(a.ch.r * a.ch.a >> 8),
+			static_cast<GrEn::byte>(a.ch.g * a.ch.a >> 8),
+			static_cast<GrEn::byte>(a.ch.b * a.ch.a >> 8),
+			static_cast<GrEn::byte>(a.ch.a),
+		};
+	}
 	else
 	{
 		//We must use	:	A_o = A_a + A_b*(255-A_a)
@@ -64,9 +75,9 @@ GrEn::hexColor GrEn::aOverBhex(hexColor a, hexColor b)
 		const float alpha = (b.ch.a * (255 - a.ch.a) >> 8) + a.ch.a; //using previous optimizations
 		return {
 					//TODO: (priority: 5) optimize the division here(we can make it to 1 division and one shift)
-					static_cast<GrEn::byte>((a.ch.r * a.ch.a) / 255.0f + b.ch.r * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f / (alpha)),
-					static_cast<GrEn::byte>((a.ch.g * a.ch.a) / 255.0f + b.ch.g * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f / (alpha)),
-					static_cast<GrEn::byte>((a.ch.b * a.ch.a) / 255.0f + b.ch.b * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f / (alpha)),
+					static_cast<GrEn::byte>((a.ch.r * a.ch.a) / 255.0f + b.ch.r * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f),
+					static_cast<GrEn::byte>((a.ch.g * a.ch.a) / 255.0f + b.ch.g * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f),
+					static_cast<GrEn::byte>((a.ch.b * a.ch.a) / 255.0f + b.ch.b * (b.ch.a) * (255 - a.ch.a) / 255.0f / 255.0f),
 					static_cast<GrEn::byte>(alpha),
 		};
 	}
