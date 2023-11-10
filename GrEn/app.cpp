@@ -12,11 +12,11 @@ void draw() {
 	Window window("ooly", e);
 	CHECK(e);
 
-	GrEn::hexColor color(0xff000000);
+	GrEn::hexColor color(0x00000000);
 	//fix them not blending properly
 	Rectangle rect(100, 150, 300, 400 , 0x60FF0000);
 	Rectangle rect1(40, 200, 400, 300, 0xF00000FF);
-	Rectangle rect2(90, 300, 100, 200, 0x6000FF20);
+	Rectangle rect2(60, 300, 200, 300, 0x6000FF20);
 	window.fill(color);
 
 	float blueness = 0.0f;
