@@ -11,7 +11,7 @@ Window::Window(const std::string& name, GrEn::exception& e)
 	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
 	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
 
-	this->windowSurface = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	this->width = DEFAULT_WIDTH;
 	this->height = DEFAULT_WIDTH;
 	this->state = windowState::maximized;
@@ -106,7 +106,13 @@ void Window::update()
 
 void Window::fill(GrEn::rgba color)
 {
-	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowSurface), NULL, GrEn::rgbaToHex(color));
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
+	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowFrame), NULL, GrEn::rgbaToHex(color).value);
+}
+void Window::fill(GrEn::hexColor color)
+{
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
+	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowFrame), NULL, color.value);
 }
 
 windowState Window::getState() const
@@ -152,5 +158,11 @@ std::string Window::getTitle() const
 void Window::setTitle(const std::string title)
 {
 	SDL_SetWindowTitle(reinterpret_cast<SDL_Window*>(this->window), title.c_str());
+}
+
+void Window::draw(const Shape2D& shape)
+{
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
+	shape.draw(reinterpret_cast<SDL_Surface*>(this->windowFrame)->pixels, this->windowFrameExtras, this->getWidth(), this->getHeight());
 }
 

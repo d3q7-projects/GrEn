@@ -87,18 +87,22 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\01_hello_SDL\01_hello_SDL\01_hello_SDL.cpp" />
     <ClCompile Include="GrEn.cpp" />
+    <ClCompile Include="GrEnColors.cpp" />
     <ClCompile Include="GrEnDefinitions.cpp" />
     <ClCompile Include="GrEnException.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="app.cpp" />
+    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h" />
+    <ClInclude Include="GrEnColors.h" />
     <ClInclude Include="GrEnDefinitions.h" />
     <ClInclude Include="GrEnException.h" />
+    <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="Shape2D.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

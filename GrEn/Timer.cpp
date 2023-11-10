@@ -14,6 +14,10 @@ double Timer::tickMS()
 	double elapsedTime = std::chrono::duration<double, std::milli>(this->end - this->start).count();
 	this->average = (this->average * this->tickCount + elapsedTime) / (this->tickCount + 1);
 	this->tickCount++;
+	if (!(this->tickCount % 300))
+	{
+		this->tickCount = 0;
+	}
 	return elapsedTime;
 }
 

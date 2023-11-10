@@ -5,14 +5,21 @@
 #include <chrono>
 #include <iostream>
 #include "Timer.h"
-
+#include "Rectangle.h"
 
 void draw() {
 	GrEn::exception e;
 	Window window("ooly", e);
 	CHECK(e);
-	window.fill({ 0, 1, 0, 1 });
 
+	GrEn::hexColor color(0x00000000);
+	//fix them not blending properly
+	Rectangle rect(100, 150, 300, 400 , 0x60FF0000);
+	Rectangle rect1(40, 200, 400, 300, 0xF00000FF);
+	Rectangle rect2(60, 300, 200, 300, 0x6000FF20);
+	window.fill(color);
+
+	float blueness = 0.0f;
 	bool first = true;
 	int num = 0;
 	Timer t; 
@@ -26,9 +33,14 @@ void draw() {
 		}
 		else
 		{
+			window.fill(color);
+			window.draw(rect1);
+			window.draw(rect2);
+			window.draw(rect);
 			window.update();
 		}
 		double diff = t.tickAndReset();
+		blueness += 0.001f;
 		num++;
 		if (num % 1 == 0)
 		{
@@ -41,7 +53,7 @@ int main(int argc, char* args[])
 {
 	GrEn::exception e;
 	CHECKFUNC(e, GrEn::initialize());
-	std::cout << std::hex << GrEn::rgbaToHex({0.2 , 0.2, 0.2, 0}) << std::endl;
+	std::cout << std::hex << GrEn::rgbaToHex({0.2f , 0.2f, 0.2f, 0.0f}).value << std::endl;
 
 	draw();
 	
