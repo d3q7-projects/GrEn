@@ -4,7 +4,6 @@
 #include "GrEnException.h"
 #include "GrEnDefinitions.h"
 #include "Shape2D.h"
-#include <map>
 
 enum class windowState
 {
@@ -18,13 +17,18 @@ class Window;
 
 struct windowEvent
 {
-	Window* quit;
-	Window* maximize;
-	Window* minimize;
-	Window* resized;
-	Window* focused;
-	Window* unfocused;
-	Window* clicked;
+	bool quit;
+	bool maximize;
+	bool minimize;
+	bool resized;
+	bool focused;
+	bool unfocused;
+	bool clicked;
+};
+
+struct frameExtra
+{
+	int z;
 };
 
 class Window
@@ -36,9 +40,9 @@ public:
 	//Window(const int width, const int height, const windowState state, GrEn::exception& e);
 	~Window();
 
-	static windowEvent getEvents();
 	int getHeight();
 	int getWidth();
+	windowEvent& getStatus();
 	void setHeight(const int height);
 	void setWidth(const int width);
 	windowState getState() const;
@@ -55,11 +59,11 @@ public:
 	void fill(GrEn::hexColor color);
 	
 private:
-	static std::map<void*, Window*> windowAssociation;
 	void* window;
 	void* windowFrame;
-	void* windowFrameExtras;
+	struct frameExtra windowFrameExtras[5000][5000];
 	windowState state;
+	struct windowEvent status;
 	int width;
 	int height;
 };

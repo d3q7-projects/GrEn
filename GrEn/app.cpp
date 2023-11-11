@@ -25,8 +25,7 @@ void draw() {
 	Timer t; 
 	while (first)
 	{
-		windowEvent events = Window::getEvents();
-		if (first && events.quit == &window)
+		if (first && window.getStatus().quit)
 		{
 			first = false;
 			window.destroy();

@@ -1,10 +1,10 @@
 #include "Window.h"
+#include "windowManager.h"
 #define NO_EXCEP 0
 #define SDL_WINDOW_CREATE_FAIL 2
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
 
-std::map<void*, Window*> Window::windowAssociation;
 
 Window::Window(const std::string& name, GrEn::exception& e)
 {
@@ -15,7 +15,8 @@ Window::Window(const std::string& name, GrEn::exception& e)
 	this->width = DEFAULT_WIDTH;
 	this->height = DEFAULT_WIDTH;
 	this->state = windowState::maximized;
-	Window::windowAssociation[this->window] = this;
+	this->status = { 0 };
+	windowManager::addWindow(this->window, this);
 }
 
 Window::~Window()
@@ -24,40 +25,6 @@ Window::~Window()
 	{
 		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));
 	}
-}
-
-windowEvent Window::getEvents()
-{
-	SDL_Event sdlEvent;
-	windowEvent event = { 0 };
-	while (SDL_PollEvent(&sdlEvent)) {
-		if (sdlEvent.type == SDL_WINDOWEVENT) {
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
-				event.quit = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_MINIMIZED) {
-				event.minimize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-				event.focused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-				event.unfocused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_MAXIMIZED) {
-				event.maximize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-				event.resized = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_HIT_TEST) {
-				event.clicked = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-
-		}
-	}
-
-	return event;
 }
 
 int Window::getHeight()
@@ -74,6 +41,11 @@ int Window::getWidth()
 		SDL_GetWindowSizeInPixels(reinterpret_cast<SDL_Window*>(this->window), &(this->width), &(this->height));
 	}
 	return this->width;
+}
+
+windowEvent& Window::getStatus()
+{
+	return this->status;
 }
 
 void Window::setHeight(const int height)
@@ -101,7 +73,7 @@ void Window::destroy(){
 void Window::update()
 {
 	SDL_UpdateWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
-
+	this->status = { 0 };
 }
 
 void Window::fill(GrEn::rgba color)
