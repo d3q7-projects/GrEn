@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <string>
+#include <map>
 #include "GrEnException.h"
 #include "GrEnDefinitions.h"
 #include "Shape2D.h"
@@ -17,13 +18,13 @@ class Window;
 
 struct windowEvent
 {
-	bool quit;
-	bool maximize;
-	bool minimize;
-	bool resized;
-	bool focused;
-	bool unfocused;
-	bool clicked;
+	bool quit = false;
+	bool maximize = false;
+	bool minimize = false;
+	bool resized = false;
+	bool focused = false;
+	bool unfocused = false;
+	bool clicked = false;
 };
 
 struct frameExtra
@@ -47,7 +48,7 @@ public:
 	void setWidth(const int width);
 	windowState getState() const;
 	void setState(const windowState state) const;
-	std::string getTitle() const;
+	std::string getTitle();
 	void setTitle(const std::string title);
 	void draw(const Shape2D& shape);
 
@@ -59,11 +60,13 @@ public:
 	void fill(GrEn::hexColor color);
 	
 private:
+	static std::map<void*, Window*> windowManager; //internal use
 	void* window;
 	void* windowFrame;
-	struct frameExtra windowFrameExtras[5000][5000];
+	struct frameExtra* windowFrameExtras;
 	windowState state;
 	struct windowEvent status;
+	std::string title;
 	int width;
 	int height;
 };

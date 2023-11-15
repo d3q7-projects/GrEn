@@ -23,9 +23,6 @@
     <ClCompile Include="Rectangle.cpp">
       <Filter>Bodies</Filter>
     </ClCompile>
-    <ClCompile Include="windowManager.cpp">
-      <Filter>Frame</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h">
@@ -51,9 +48,6 @@
     </ClInclude>
     <ClInclude Include="Rectangle.h">
       <Filter>Bodies</Filter>
-    </ClInclude>
-    <ClInclude Include="windowManager.h">
-      <Filter>Frame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

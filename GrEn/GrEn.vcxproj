@@ -95,7 +95,6 @@
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
-    <ClCompile Include="windowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h" />
@@ -106,7 +105,6 @@
     <ClInclude Include="Shape2D.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="windowManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
