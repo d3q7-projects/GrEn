@@ -4,18 +4,22 @@
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 720
 
-std::map<void*, Window*> Window::windowAssociation;
+std::map<void*, Window*> Window::windowManager;
 
-Window::Window(const std::string& name, GrEn::exception& e)
+Window::Window(const std::string& name, GrEn::exception& e) : window(0)
 {
-	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
-	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
 
 	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	this->width = DEFAULT_WIDTH;
-	this->height = DEFAULT_WIDTH;
+	this->height = DEFAULT_HEIGHT;
 	this->state = windowState::maximized;
-	Window::windowAssociation[this->window] = this;
+	this->title = name;
+	this->status = { 0 };
+	this->windowFrameExtras = new struct frameExtra[4096 * 4096];
+	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
+	Window::windowManager[this->window] = this;
+	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
+	
 }
 
 Window::~Window()
@@ -24,40 +28,6 @@ Window::~Window()
 	{
 		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));
 	}
-}
-
-windowEvent Window::getEvents()
-{
-	SDL_Event sdlEvent;
-	windowEvent event = { 0 };
-	while (SDL_PollEvent(&sdlEvent)) {
-		if (sdlEvent.type == SDL_WINDOWEVENT) {
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
-				event.quit = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_MINIMIZED) {
-				event.minimize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-				event.focused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-				event.unfocused = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_MAXIMIZED) {
-				event.maximize = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-				event.resized = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-			if (sdlEvent.window.event == SDL_WINDOWEVENT_HIT_TEST) {
-				event.clicked = windowAssociation[SDL_GetWindowFromID(sdlEvent.window.windowID)];
-			}
-
-		}
-	}
-
-	return event;
 }
 
 int Window::getHeight()
@@ -74,6 +44,11 @@ int Window::getWidth()
 		SDL_GetWindowSizeInPixels(reinterpret_cast<SDL_Window*>(this->window), &(this->width), &(this->height));
 	}
 	return this->width;
+}
+
+windowEvent& Window::getStatus()
+{
+	return this->status;
 }
 
 void Window::setHeight(const int height)
@@ -96,12 +71,48 @@ void Window::destroy(){
 	if (this->window) {
 		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));
 	}
+	this->window = nullptr;
 }
 
 void Window::update()
 {
 	SDL_UpdateWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
+	this->status = { 0 };
+	SDL_Event sdlEvent;
 
+	while (SDL_PollEvent(&sdlEvent)) { // stays same thread because of window
+		if (sdlEvent.type == SDL_WINDOWEVENT) {
+			Window* eventWindow = Window::windowManager[SDL_GetWindowFromID(sdlEvent.window.windowID)];
+			if (!eventWindow)
+			{
+				continue;
+			}
+			windowEvent& status = eventWindow->getStatus();
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) {
+				eventWindow->destroy();
+				status.quit = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+				status.minimize = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				status.focused = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				status.unfocused = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_MAXIMIZED) {
+				status.maximize = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				status.resized = true;
+			}
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_HIT_TEST) {
+				status.clicked = true;
+			}
+
+		}
+	}
 }
 
 void Window::fill(GrEn::rgba color)
@@ -132,27 +143,35 @@ windowState Window::getState() const
 
 void Window::setState(const windowState state) const
 {
-	switch (state)
+	if (this->window)
 	{
-	case windowState::floating:
-		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
-		SDL_RestoreWindow(reinterpret_cast<SDL_Window*>(this->window));
-		break;
-	case windowState::maximized:
-		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
-		SDL_MaximizeWindow(reinterpret_cast<SDL_Window*>(this->window));
-		break;
-	case windowState::fullscreen:
-		SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), SDL_WINDOW_FULLSCREEN);
-		break;
-	default:
-		break;
+		switch (state)
+		{
+		case windowState::floating:
+			SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
+			SDL_RestoreWindow(reinterpret_cast<SDL_Window*>(this->window));
+			break;
+		case windowState::maximized:
+			SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), 0);
+			SDL_MaximizeWindow(reinterpret_cast<SDL_Window*>(this->window));
+			break;
+		case windowState::fullscreen:
+			SDL_SetWindowFullscreen(reinterpret_cast<SDL_Window*>(this->window), SDL_WINDOW_FULLSCREEN);
+			break;
+		default:
+			break;
+		}
 	}
+
 }
 
-std::string Window::getTitle() const
+std::string Window::getTitle()
 {
-	return SDL_GetWindowTitle(reinterpret_cast<SDL_Window*>(this->window));
+	if (this->window)
+	{
+		this->title = SDL_GetWindowTitle(reinterpret_cast<SDL_Window*>(this->window));
+	}
+	return this->title;
 }
 
 void Window::setTitle(const std::string title)
