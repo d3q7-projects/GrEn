@@ -80,7 +80,7 @@ void Window::update()
 	this->status = { 0 };
 	SDL_Event sdlEvent;
 
-	while (SDL_PollEvent(&sdlEvent)) { // stays same thread because of window
+	while (SDL_PollEvent(&sdlEvent)) { // stays in the same thread because of windows
 		if (sdlEvent.type == SDL_WINDOWEVENT) {
 			Window* eventWindow = Window::windowManager[SDL_GetWindowFromID(sdlEvent.window.windowID)];
 			if (!eventWindow)
