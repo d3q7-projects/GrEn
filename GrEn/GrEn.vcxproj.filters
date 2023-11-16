@@ -23,6 +23,7 @@
     <ClCompile Include="Rectangle.cpp">
       <Filter>Bodies</Filter>
     </ClCompile>
+    <ClCompile Include="VectorMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h">
@@ -49,6 +50,7 @@
     <ClInclude Include="Rectangle.h">
       <Filter>Bodies</Filter>
     </ClInclude>
+    <ClInclude Include="VectorMath.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
