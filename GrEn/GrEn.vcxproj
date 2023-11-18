@@ -102,10 +102,11 @@
     <ClInclude Include="GrEnColors.h" />
     <ClInclude Include="GrEnDefinitions.h" />
     <ClInclude Include="GrEnException.h" />
+    <ClInclude Include="MatrixMath.hpp" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Shape2D.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="VectorMath.h" />
+    <ClInclude Include="VectorMath.hpp" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

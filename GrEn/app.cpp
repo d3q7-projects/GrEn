@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Timer.h"
 #include "Rectangle.h"
+#include "VectorMath.hpp"
 
 void draw() {
 	GrEn::exception e = 0;
@@ -53,7 +54,13 @@ int main(int argc, char* args[])
 {
 	GrEn::exception e;
 	CHECKFUNC(e, GrEn::initialize());
-	std::cout << std::hex << GrEn::rgbaToHex({0.2f , 0.2f, 0.2f, 0.0f}).value << std::endl;
+	struct GrEn::vec3<float> x = { 1.0f,0.0f,1.0f };
+	struct GrEn::vec3<float> y = { 0.0f,1.0f,1.0f };
+	struct GrEn::vec3<float> z = { 0.0f,0.0f,0.0f };
+	vecCrossProd(x, y, z);
+	vecNormalize(z);
+	std::cout << "(" << z.x << "," << z.y << "," << z.z << ") -> " << vecLen(z) << std::endl;
+	
 
 	draw();
 	
