@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "Rectangle.h"
 #include "VectorMath.hpp"
+#include "MatrixMath.hpp"
 
 void draw() {
 	GrEn::exception e = 0;
@@ -27,6 +28,14 @@ void draw() {
 	Timer t; 
 	while (!(window.getStatus().quit && window2.getStatus().quit))
 	{
+		GrEn::mat3<float> mat = { {1, -1,  2},
+									{-2, 3, -4},
+									{9,  3,  1} };
+		GrEn::mat3<float> mat2 = { {-15.0f / 17.0f, -7.0f / 17.0f, 2.0f / 17.0f},
+									{2,  1,  0},
+									{33.0f / 17.0f, 12.0f / 17.0f, -1.0 / 17.0} };
+		GrEn::mat3<float> mat3 = { 0 };
+		matMult(mat, mat2, mat3);
 		if (!window.getStatus().quit)
 		{
 			window.fill(color);
@@ -60,8 +69,62 @@ int main(int argc, char* args[])
 	vecCrossProd(x, y, z);
 	vecNormalize(z);
 	std::cout << "(" << z.x << "," << z.y << "," << z.z << ") -> " << vecLen(z) << std::endl;
-	
 
+	GrEn::mat3<float> mat = {	{-3, 2, -5},
+								{-1, 0, -2},
+								{3, -4,  1} };
+	GrEn::mat3<float> mat2 = { {-15.0f / 17.0f, -7.0f / 17.0f, 2.0f / 17.0f},
+								{2,  1,  0},
+								{33.0f / 17.0f, 12.0f / 17.0f, -1.0f / 17.0f} };
+	GrEn::mat3<float> mat3 = {0};
+	matMult(mat, mat2, mat3);
+	
+	matPrint(mat);
+	std::cout << "*" << std::endl;
+	matPrint(mat2);
+	std::cout << "=" << std::endl;
+	matPrint(mat3);
+
+	std::cout << std::endl << std::endl;
+
+	matVecMult(mat, z, x);
+	matPrint(mat);
+	std::cout << "*" << std::endl;
+	vecPrint(z);
+	std::cout << "=" << std::endl;
+	vecPrint(x);
+
+	std::cout << std::endl << std::endl;
+
+	matGetAdjunt(mat, mat3);
+
+	matPrint(mat);
+	std::cout << "^adj" << std::endl;
+	std::cout << "=" << std::endl;
+	matPrint(mat3);
+
+	std::cout << std::endl << std::endl;
+
+	matGetInverse(mat, mat3);
+
+	matPrint(mat);
+	std::cout << "^-1" << std::endl;
+	std::cout << "=" << std::endl;
+	matPrint(mat3);
+
+	std::cout << std::endl << std::endl;
+
+	matMult(mat, mat3, mat2);
+
+	matPrint(mat);
+	std::cout << "*" << std::endl;
+	matPrint(mat3);
+	std::cout << "=" << std::endl;
+	matPrint(mat2);
+
+
+	std::cout << std::endl << std::endl << "|mat1| = " << matDeterminent(mat) << std::endl;
+	
 	draw();
 	
 	GrEn::finish();

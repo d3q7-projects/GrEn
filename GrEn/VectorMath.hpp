@@ -210,3 +210,5 @@ void vecCrossProd(const GrEn::vec3<T>& v1, const GrEn::vec3<T>& v2, GrEn::vec3<T
 void vecNormalize(GrEn::vec3<float>& v1);
 float vecMag(GrEn::vec3<float>& v1);
 float vecLen(GrEn::vec3<float>& v1);
+
+void vecPrint(GrEn::vec3<float>& vector);

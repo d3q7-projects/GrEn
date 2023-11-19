@@ -1,5 +1,6 @@
 #include "VectorMath.hpp"
 #include <immintrin.h>
+#include <iostream>
 
 void vecNormalize(GrEn::vec3<float>& v1)
 {
@@ -26,4 +27,9 @@ float vecLen(GrEn::vec3<float>& v1)
     __m128 _dstRegister = _mm_sqrt_ps(_srcReisger);
     _mm_storeu_ps(array, _dstRegister);
     return array[0];
+}
+
+void vecPrint(GrEn::vec3<float>& vector)
+{
+    std::cout << "(" << vector.x << "," << vector.y << "," << vector.z << ")" << std::endl;
 }
