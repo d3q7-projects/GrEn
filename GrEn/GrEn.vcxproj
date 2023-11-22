@@ -87,9 +87,9 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GrEn.cpp" />
     <ClCompile Include="GrEnColors.cpp" />
-    <ClCompile Include="GrEnDefinitions.cpp" />
     <ClCompile Include="GrEnException.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Rectangle.cpp" />
@@ -98,6 +98,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="GrEn.h" />
     <ClInclude Include="GrEnColors.h" />
     <ClInclude Include="GrEnDefinitions.h" />
