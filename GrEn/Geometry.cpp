@@ -13,9 +13,9 @@ inline bool isNotNull(const GrEn::Triangle& t) {
 		t.vertex[2].z;
 }
 
-Geometry::Geometry() : bound(0),available(0), primitives(), worldPosition(), rotation() { }
+Geometry::Geometry() : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation() { }
 
-Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), available(len), primitives(), worldPosition(), rotation()
+Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), iter(0), available(len), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
 {
 	for (size_t i = 0; i < len; i++)
 	{
@@ -34,10 +34,15 @@ Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), ava
 	}
 }
 
-Geometry::Geometry(const std::string& file) : bound(0), available(0), primitives(), worldPosition(), rotation()
+Geometry::Geometry(const std::string& file) : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
 {
 	_CRT_WARNING_MESSAGE("1", "This function isn't implemented yet");
 	//TODO: implement file object extraction
+}
+
+Geometry::~Geometry()
+{
+	delete[] this->primitives;
 }
 
 GrEn::exception Geometry::addTrig(const GrEn::Triangle& prim)
@@ -46,23 +51,24 @@ GrEn::exception Geometry::addTrig(const GrEn::Triangle& prim)
 		return GrEn::exception(GREN_GEOMETRY_OOB);
 	}
 	this->primitives[this->available] = prim;
-	for (size_t i = this->available; i < this->bound; i++)
+	for (int i = this->available; i < this->bound; i++)
 	{
 		if (!isNotNull(this->primitives[i]))
 		{
 			this->available = i;
-			return;
+			return 0;
 		}
 	}
-	this->available = this->bound++;
+	this->available = this->available == this->bound ? ++this->bound : this->bound;
+	return 0;
 }
 
 int Geometry::getLen() const
 {
-	int len = 0;
+	int len = this->available;
 	for (size_t i = this->available; i < this->bound; i++)
 	{
-		if (!isNotNull(this->primitives[i]))
+		if (isNotNull(this->primitives[i]))
 		{
 			len++;
 		}
@@ -79,7 +85,25 @@ GrEn::exception Geometry::removeTrig(const int index)
 		this->primitives[index].vertex[2] = { 0 };
 		
 		this->available = index < this->available ? index : this->available;
+		this->bound = this->bound - 1 == index ? index : this->bound;
 		return 0;
 	}
 	return GrEn::exception(GREN_GEOMETRY_OOB);
+}
+
+void Geometry::resetIteration()
+{
+	this->iter = GEOMETRY_BEGIN;
+}
+
+GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
+{
+	for (; this->iter < this->bound; this->iter++)
+	{
+		if (isNotNull(this->primitives[this->iter]))
+		{
+			prim = primitives[this->iter];
+		}
+	}
+	return GEOMETRY_END;
 }

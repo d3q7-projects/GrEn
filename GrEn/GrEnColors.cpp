@@ -51,9 +51,9 @@ GrEn::hexColor GrEn::aOverBhex(const hexColor& a, const hexColor& b)
 		//We can optimize it further to(we muust make sure we dont have an overflow):
 		//					C_o = ((C_a*A_a) + (C_b*(255-A_a))) >> 8
 		return {
-					((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8,
-					((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8,
-					((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8,
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8),
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8),
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8),
 					SRGB_MAX ,
 		};
 
@@ -132,9 +132,9 @@ void GrEn::aOverBhex(const hexColor& a, const hexColor& b, hexColor& res)
 		//We can optimize it further to(we muust make sure we dont have an overflow):
 		//					C_o = ((C_a*A_a) + (C_b*(255-A_a))) >> 8
 		res = {
-					((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8,
-					((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8,
-					((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8,
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8),
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8),
+					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8),
 					SRGB_MAX ,
 		};
 

@@ -24,6 +24,7 @@ Window::Window(const std::string& name, GrEn::exception& e) : window(0)
 
 Window::~Window()
 {
+	delete[] this->windowFrameExtras;
 	if (this->window)
 	{
 		SDL_DestroyWindow(reinterpret_cast<SDL_Window*>(this->window));

@@ -8,6 +8,7 @@
 #include "Rectangle.h"
 #include "VectorMath.hpp"
 #include "MatrixMath.hpp"
+#include "Geometry.h"
 
 void draw() {
 	GrEn::exception e = 0;
@@ -33,7 +34,7 @@ void draw() {
 									{9,  3,  1} };
 		GrEn::mat3<float> mat2 = { {-15.0f / 17.0f, -7.0f / 17.0f, 2.0f / 17.0f},
 									{2,  1,  0},
-									{33.0f / 17.0f, 12.0f / 17.0f, -1.0 / 17.0} };
+									{33.0f / 17.0f, 12.0f / 17.0f, -1.0f / 17.0f} };
 		GrEn::mat3<float> mat3 = { 0 };
 		matMult(mat, mat2, mat3);
 		if (!window.getStatus().quit)
@@ -121,6 +122,19 @@ int main(int argc, char* args[])
 	matPrint(mat3);
 	std::cout << "=" << std::endl;
 	matPrint(mat2);
+	
+	Geometry triangulation;
+	triangulation.addTrig({ { {-1,0,0}, {1,0,0 }, {0,1.41,0} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {-3,2,-2}, {1,4,0 }, {1,2.41,-4} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.removeTrig(2);
+	triangulation.addTrig({ { {-1,0,0}, {1,0,0 }, {0,1.41,0} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.removeTrig(0);
+	triangulation.removeTrig(1);
+	triangulation.getLen();
+	triangulation.addTrig({ { {-3,2,-2}, {1,4,0 }, {1,2.41,-4} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
 
 	std::cout << std::endl << std::endl << "|mat1| = " << matDeterminent(mat) << std::endl;
