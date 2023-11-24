@@ -9,6 +9,7 @@
 #include "VectorMath.hpp"
 #include "MatrixMath.hpp"
 #include "Geometry.h"
+#include "GeometryGroup.h"
 
 void draw() {
 	GrEn::exception e = 0;
@@ -124,6 +125,9 @@ int main(int argc, char* args[])
 	matPrint(mat2);
 	
 	Geometry triangulation;
+	Geometry triangulation2;
+	Geometry triangulation3;
+	GeometryGroup gg;
 	triangulation.addTrig({ { {-1,0,0}, {1,0,0 }, {0,1.41,0} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	triangulation.addTrig({ { {-3,2,-2}, {1,4,0 }, {1,2.41,-4} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
@@ -136,6 +140,17 @@ int main(int argc, char* args[])
 	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
+	gg.addGeometry(&triangulation);
+	gg.addGeometry(&triangulation2);
+	gg.addGeometry(&triangulation3);
+	gg.removeGeometry(2);
+	gg.addGeometry(&triangulation);
+	gg.removeGeometry(0);
+	gg.removeGeometry(1);
+	gg.getLen();
+	gg.addGeometry(&triangulation2);
+	gg.addGeometry(&triangulation3);
+	gg.addGeometry(&triangulation3);
 
 	std::cout << std::endl << std::endl << "|mat1| = " << matDeterminent(mat) << std::endl;
 	

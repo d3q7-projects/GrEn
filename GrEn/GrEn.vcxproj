@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GeometryGroup.cpp" />
     <ClCompile Include="GrEn.cpp" />
     <ClCompile Include="GrEnColors.cpp" />
     <ClCompile Include="GrEnException.cpp" />
@@ -99,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GeometryGroup.h" />
     <ClInclude Include="GrEn.h" />
     <ClInclude Include="GrEnColors.h" />
     <ClInclude Include="GrEnDefinitions.h" />

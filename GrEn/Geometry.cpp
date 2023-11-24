@@ -1,5 +1,7 @@
 #include "Geometry.h"
-#define GREN_GEOMETRY_OOB 3
+#define GREN_OOB 3
+
+//TODO: seems that both Geometry and Geometry group have the same structure so i might as well turn it to an abstract class
 
 inline bool isNotNull(const GrEn::Triangle& t) { 
 	return t.vertex[0].x ||
@@ -48,7 +50,7 @@ Geometry::~Geometry()
 GrEn::exception Geometry::addTrig(const GrEn::Triangle& prim)
 {
 	if(this->bound == MAX_PRIMS){
-		return GrEn::exception(GREN_GEOMETRY_OOB);
+		return GrEn::exception(GREN_OOB);
 	}
 	this->primitives[this->available] = prim;
 	for (int i = this->available; i < this->bound; i++)
@@ -88,7 +90,7 @@ GrEn::exception Geometry::removeTrig(const int index)
 		this->bound = this->bound - 1 == index ? index : this->bound;
 		return 0;
 	}
-	return GrEn::exception(GREN_GEOMETRY_OOB);
+	return GrEn::exception(GREN_OOB);
 }
 
 void Geometry::resetIteration()
@@ -103,6 +105,7 @@ GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
 		if (isNotNull(this->primitives[this->iter]))
 		{
 			prim = primitives[this->iter];
+			return 0;
 		}
 	}
 	return GEOMETRY_END;
