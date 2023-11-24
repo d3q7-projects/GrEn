@@ -22,13 +22,16 @@ namespace GrEn
 			byte a;
 		} ch;
 		unsigned int value;
-		hexColor(unsigned int v) : value(v) {}
-		hexColor(byte r, byte g, byte b, byte a) : ch({b, g, r, a}) {}
+		hexColor(const unsigned int& v) : value(v) {}
+		hexColor(const byte& r, const byte& g, const byte& b, const byte& a) : ch({b, g, r, a}) {}
 	};
 	
-	hexColor rgbaToHex(rgba color);
-	rgba aOverBrgba(rgba a, rgba b);
-	hexColor aOverBhex(hexColor a, hexColor b);
+	hexColor rgbaToHex(const rgba& color);
+	rgba aOverBrgba(const rgba& a, const rgba& b);
+	hexColor aOverBhex(const hexColor& a, const hexColor& b);
+	void rgbaToHex(const rgba& color, hexColor& res);
+	void aOverBrgba(const rgba& a, const rgba& b, rgba& res);
+	void aOverBhex(const hexColor& a, const hexColor& b, hexColor& res);
 
 };
 

@@ -5,9 +5,6 @@
     <ClCompile Include="GrEn.cpp">
       <Filter>Frame</Filter>
     </ClCompile>
-    <ClCompile Include="GrEnDefinitions.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="GrEnException.cpp">
       <Filter>DebugUtils</Filter>
     </ClCompile>
@@ -23,7 +20,15 @@
     <ClCompile Include="Rectangle.cpp">
       <Filter>Bodies</Filter>
     </ClCompile>
-    <ClCompile Include="VectorMath.cpp" />
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Bodies</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGroup.cpp">
+      <Filter>Bodies</Filter>
+    </ClCompile>
+    <ClCompile Include="VectorMath.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h">
@@ -55,6 +60,12 @@
     </ClInclude>
     <ClInclude Include="MatrixMath.hpp">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Bodies</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGroup.h">
+      <Filter>Bodies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

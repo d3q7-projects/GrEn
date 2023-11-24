@@ -13,7 +13,7 @@ void Rectangle::draw(void* frame, void* frameExtras, const int width, const int 
 	{
 		for (int i = this->x; i < this->x + widthClamped; i++)
 		{
-			*(unraveledFrame + i + width * j) = GrEn::aOverBhex(this->color, unraveledFrame[i + width * j]);
+			GrEn::aOverBhex(this->color, unraveledFrame[i + width * j], unraveledFrame[i + width * j]);
 		}
 		
 	}
