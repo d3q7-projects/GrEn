@@ -5,6 +5,7 @@
 #include "GrEnException.h"
 #include "GrEnDefinitions.h"
 #include "Shape2D.h"
+#include "Camera.h"
 
 enum class windowState
 {
@@ -13,8 +14,6 @@ enum class windowState
 	fullscreen,
 	unknown
 };
-
-class Window;
 
 struct windowEvent
 {
@@ -32,6 +31,7 @@ struct frameExtra
 	int z;
 };
 
+class Camera;
 class Window
 {
 public:
@@ -69,5 +69,7 @@ private:
 	std::string title;
 	int width;
 	int height;
+
+	friend class Camera;
 };
 
