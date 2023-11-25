@@ -5,16 +5,16 @@ GrEn is a *user-friendly* C/C++ Graphics Engine Framework for 2D and 3D. It is s
 ## Features
 * Simple handeling of multiple windows simultaniously
 * Abilitty to use general 2D objects to draw them on screen
+* Abilitty to perform vector/matrix operations
 (kinda empty :P)
 
 ## Upcoming Features
-* Abilitty to perform vector/matrix operations
 * Having control over simple 3D meshes that can be rendered on screen
+* Optimized rendering pipeline(first running only on CPU)
 
 ## Invisioned features
-* Optimized rendering pipeline(first running only on CPU)
 * Implement a dedicated multithreaded section for the window for post-processing and On-Screen 2D drawing
-* Simple light sources(point, directional, )
+* Simple light sources(point, directional, ...)
 * Simple material control
 * More will be added :D
 
