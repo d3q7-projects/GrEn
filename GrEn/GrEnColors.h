@@ -22,6 +22,7 @@ namespace GrEn
 			byte a;
 		} ch;
 		unsigned int value;
+		hexColor() : value(0) {}
 		hexColor(const unsigned int& v) : value(v) {}
 		hexColor(const byte& r, const byte& g, const byte& b, const byte& a) : ch({b, g, r, a}) {}
 	};

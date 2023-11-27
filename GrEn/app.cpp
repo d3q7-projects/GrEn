@@ -11,18 +11,18 @@
 #include "Geometry.h"
 #include "GeometryGroup.h"
 
-void draw() {
+static void draw() {
 	GrEn::exception e = 0;
 	Window window("ooly", e);
 	Window window2("ooly2", e);
 	CHECK(e);
 
-	GrEn::hexColor color(0x00000000);
+	GrEn::hexColor color(0xff000000);
 	GrEn::hexColor color2(0xffffff00);
 	//fix them not blending properly
-	Rectangle rect(100, 150, 300, 400, 0x60FF0000);
-	Rectangle rect1(40, 200, 400, 300, 0xF00000FF);
-	Rectangle rect2(60, 300, 200, 300, 0x6000FF20);
+	Rectangle rect(100, 150, 300, 400, 0x40FF0000);
+	Rectangle rect1(40, 200, 400, 300, 0x400000FF);
+	Rectangle rect2(60, 300, 200, 300, 0x4000FF20);
 	window.fill(color);
 
 	float blueness = 0.0f;
@@ -41,9 +41,9 @@ void draw() {
 		if (!window.getStatus().quit)
 		{
 			window.fill(color);
+			window.draw(rect);
 			window.draw(rect1);
 			window.draw(rect2);
-			window.draw(rect);
 			window.update();
 			double diff = t.tickAndReset();
 			rect.setColor(rect.getColor().value + 1);

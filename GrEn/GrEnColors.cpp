@@ -131,24 +131,20 @@ void GrEn::aOverBhex(const hexColor& a, const hexColor& b, hexColor& res)
 		//thanks to https://www.codeguru.com/cplusplus/tip-an-optimized-formula-for-alpha-blending-pixels/
 		//We can optimize it further to(we muust make sure we dont have an overflow):
 		//					C_o = ((C_a*A_a) + (C_b*(255-A_a))) >> 8
-		res = {
-					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8),
-					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8),
-					static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8),
-					SRGB_MAX ,
-		};
+		res.ch.r = static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.r) * a.ch.a) + (static_cast<unsigned int>(b.ch.r) * (SRGB_MAX - a.ch.a))) >> 8);
+		res.ch.g = static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.g) * a.ch.a) + (static_cast<unsigned int>(b.ch.g) * (SRGB_MAX - a.ch.a))) >> 8);
+		res.ch.b = static_cast<GrEn::byte>(((static_cast<unsigned int>(a.ch.b) * a.ch.a) + (static_cast<unsigned int>(b.ch.b) * (SRGB_MAX - a.ch.a))) >> 8);
+		res.ch.a = SRGB_MAX;
 
 	}
 	else if (b.ch.a == 0)
 	{
 		//Simplifies to:	A_o = A_a
 		//					C_o = (C_a*A_a)
-		res = {
-			static_cast<GrEn::byte>(a.ch.r * a.ch.a >> 8),
-			static_cast<GrEn::byte>(a.ch.g * a.ch.a >> 8),
-			static_cast<GrEn::byte>(a.ch.b * a.ch.a >> 8),
-			static_cast<GrEn::byte>(a.ch.a),
-		};
+		res.ch.r = static_cast<GrEn::byte>(a.ch.r * a.ch.a >> 8);
+		res.ch.g = static_cast<GrEn::byte>(a.ch.g * a.ch.a >> 8);
+		res.ch.b = static_cast<GrEn::byte>(a.ch.b * a.ch.a >> 8);
+		res.ch.a = a.ch.a;
 	}
 	else
 	{
@@ -156,11 +152,9 @@ void GrEn::aOverBhex(const hexColor& a, const hexColor& b, hexColor& res)
 		//					C_o = (C_a*A_a + C_b*A_b*(SRGB_MAX -A_a))/(A_a + A_b*(SRGB_MAX -A_a))
 		const GrEn::byte alpha = (b.ch.a * (SRGB_MAX - a.ch.a) >> 8) + a.ch.a; //using previous optimizations
 
-		res = {
-			static_cast<GrEn::byte>((a.ch.r * a.ch.a >> 8) + (b.ch.r * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16)),
-			static_cast<GrEn::byte>((a.ch.g * a.ch.a >> 8) + (b.ch.g * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16)),
-			static_cast<GrEn::byte>((a.ch.b * a.ch.a >> 8) + (b.ch.b * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16)),
-			static_cast<GrEn::byte>(alpha),
-		};
+		res.ch.r = static_cast<GrEn::byte>((a.ch.r * a.ch.a >> 8) + (b.ch.r * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16));
+		res.ch.g = static_cast<GrEn::byte>((a.ch.g * a.ch.a >> 8) + (b.ch.g * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16));
+		res.ch.b = static_cast<GrEn::byte>((a.ch.b * a.ch.a >> 8) + (b.ch.b * (b.ch.a) * (SRGB_MAX - a.ch.a) >> 16));
+		res.ch.a = static_cast<GrEn::byte>(alpha);
 	}
 }
