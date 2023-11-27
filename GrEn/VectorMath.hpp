@@ -94,20 +94,20 @@ void vecSubEq(GrEn::vec4<T>& v1, const GrEn::vec4<T>& v2)
 
 
 template<typename T>
-void vecScalarProd(const GrEn::vec2<T>& v1, const T& s, GrEn::vec2<T>& v3)
+void vecScalarMul(const GrEn::vec2<T>& v1, const T& s, GrEn::vec2<T>& v3)
 {
 	v3.x = s * v1.x;
 	v3.y = s * v1.y;
 }
 template<typename T>
-void vecScalarProd(const GrEn::vec3<T>& v1, const T& s, GrEn::vec3<T>& v3)
+void vecScalarMul(const GrEn::vec3<T>& v1, const T& s, GrEn::vec3<T>& v3)
 {
 	v3.x = s * v1.x;
 	v3.y = s * v1.y;
 	v3.z = s * v1.z;
 }
 template<typename T>
-void vecScalarProd(const GrEn::vec4<T>& v1, const T& s, GrEn::vec4<T>& v3)
+void vecScalarMul(const GrEn::vec4<T>& v1, const T& s, GrEn::vec4<T>& v3)
 {
 	v3.x = s * v1.x;
 	v3.y = s * v1.y;

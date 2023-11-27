@@ -7,6 +7,8 @@
 
 #define GEOMETRY_GROUPS_PER_FRAME 128
 #define GEOMETRIES_PER_FRAME 512
+#define FAR_PLANE 1000.0f
+#define NEAR_PLANE 0.1f
 
 enum class Projection
 {
@@ -33,11 +35,11 @@ public:
 	void setWidth(const int& width);
 	void setHeight(const int& height);
 	
-	void getPointAtMat(GrEn::mat4<float>& mat);
+	void getInversePointAtMat(GrEn::mat4<float>& mat);
 	void getObjectToScreenMat(GrEn::mat4<float>& mat);
 
 private:
-	void calcPointAtMat();
+	void calcInversePointAtMat();
 	void calcObjectToScreenMat();
 	void* outputColor;
 	struct frameExtra* pixelExtras;
@@ -49,7 +51,7 @@ private:
 	int height;
 	Projection projection;
 
-	GrEn::mat4<float> pointAtMat;
+	GrEn::mat4<float> inversePointtAtMat;
 	GrEn::mat4<float> objectToScreenMat;
 	
 	const GeometryGroup** meshGroups;
