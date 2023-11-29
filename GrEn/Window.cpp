@@ -9,14 +9,14 @@ std::map<void*, Window*> Window::windowManager;
 Window::Window(const std::string& name, GrEn::exception& e) : window(0)
 {
 
-	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	this->width = DEFAULT_WIDTH;
 	this->height = DEFAULT_HEIGHT;
 	this->state = windowState::maximized;
 	this->title = name;
 	this->status = { 0 };
-	this->windowFrameExtras = new struct frameExtra[4096 * 4096];
 	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
+	this->windowFrameExtras = new struct frameExtra[4096 * 4096];
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	Window::windowManager[this->window] = this;
 	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
 	

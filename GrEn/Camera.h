@@ -38,9 +38,15 @@ public:
 	void getInversePointAtMat(GrEn::mat4<float>& mat);
 	void getObjectToScreenMat(GrEn::mat4<float>& mat);
 
+	void addGeometry(Geometry* mesh); //might change from const when we add vertex shaders
+	void addGeometryGroup(GeometryGroup* mesh); //same as above
+
+	void render();
+
 private:
 	void calcInversePointAtMat();
 	void calcObjectToScreenMat();
+	void updateFields();
 	void* outputColor;
 	struct frameExtra* pixelExtras;
 	
@@ -54,8 +60,13 @@ private:
 	GrEn::mat4<float> inversePointtAtMat;
 	GrEn::mat4<float> objectToScreenMat;
 	
-	const GeometryGroup** meshGroups;
-	const Geometry** meshes;
+	GeometryGroup** meshGroups;
+	Geometry** meshes;
+	
+	Window* attachedWindow;
+
+	int meshGroupsBound;
+	int meshesBound;
 
 };
 

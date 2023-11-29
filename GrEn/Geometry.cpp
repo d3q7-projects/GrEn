@@ -105,6 +105,7 @@ GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
 		if (isNotNull(this->primitives[this->iter]))
 		{
 			prim = primitives[this->iter];
+			this->iter++;
 			return 0;
 		}
 	}

@@ -8,16 +8,16 @@ class GeometryGroup
 {
 public:
 	GeometryGroup();
-	GeometryGroup(const Geometry** prims, const int len);
+	GeometryGroup(Geometry** prims, const int len);
 	~GeometryGroup();
-	GrEn::exception addGeometry(const Geometry*);
+	GrEn::exception addGeometry(Geometry*);
 	int getLen() const;
 	GrEn::exception removeGeometry(const int index);
 	void resetIteration();
-	GrEn::exception iterate(const Geometry*& geometry);
+	GrEn::exception iterate(Geometry*& geometry);
 
 private:
-	const Geometry** geometries;
+	Geometry** geometries;
 	int bound;
 	int iter;
 	int available;

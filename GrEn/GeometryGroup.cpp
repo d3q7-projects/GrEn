@@ -1,9 +1,9 @@
 #include "GeometryGroup.h"
 #define GREN_OOB 3
 
-GeometryGroup::GeometryGroup() : geometries(new const Geometry*[GEOMETRY_MAX]), bound(0), iter(0), available(0){}
+GeometryGroup::GeometryGroup() : geometries(new Geometry*[GEOMETRY_MAX]), bound(0), iter(0), available(0){}
 
-GeometryGroup::GeometryGroup(const Geometry** prims, const int len) : geometries(new const Geometry* [GEOMETRY_MAX]), bound(len), iter(0), available(0) {
+GeometryGroup::GeometryGroup(Geometry** prims, const int len) : geometries(new Geometry* [GEOMETRY_MAX]), bound(len), iter(0), available(0) {
 	for (size_t i = 0; i < len; i++)
 	{
 		if (i >= GEOMETRY_MAX)
@@ -26,7 +26,7 @@ GeometryGroup::~GeometryGroup()
 	delete[] this->geometries;
 }
 
-GrEn::exception GeometryGroup::addGeometry(const Geometry* geometry)
+GrEn::exception GeometryGroup::addGeometry(Geometry* geometry)
 {
 	if (this->bound == MAX_PRIMS) {
 		return GrEn::exception(GREN_OOB);
@@ -75,13 +75,14 @@ void GeometryGroup::resetIteration()
 	this->iter = GEOMETRY_BEGIN;
 }
 
-GrEn::exception GeometryGroup::iterate(const Geometry*& geometry)
+GrEn::exception GeometryGroup::iterate(Geometry*& geometry)
 {
 	for (; this->iter < this->bound; this->iter++)
 	{
 		if (this->geometries[this->iter])
 		{
 			geometry = this->geometries[this->iter];
+			this->iter++;
 			return 0;
 		}
 	}

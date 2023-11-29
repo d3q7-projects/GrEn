@@ -244,6 +244,16 @@ void matVecMult(const GrEn::mat4<T>& mat, const GrEn::vec4<T>& vec1, GrEn::vec4<
 }
 
 template<typename T>
+void matHomVecMult(const GrEn::mat4<T>& mat, const GrEn::vec3<T>& vec1, GrEn::vec3<T>& vec2)
+{
+	T fakeWVal = mat[3][0] * vec1.x + mat[3][1] * vec1.y + mat[3][2] * vec1.z + mat[3][2];
+
+	vec2.x = (mat[0][0] * vec1.x + mat[0][1] * vec1.y + mat[0][2] * vec1.z + mat[0][2]) / fakeWVal;
+	vec2.y = (mat[1][0] * vec1.x + mat[1][1] * vec1.y + mat[1][2] * vec1.z + mat[1][2]) / fakeWVal;
+	vec2.z = (mat[2][0] * vec1.x + mat[2][1] * vec1.y + mat[2][2] * vec1.z + mat[2][2]) / fakeWVal;
+}
+
+template<typename T>
 T matDeterminent(const GrEn::mat3<T>& mat)
 {
 	return mat[0][0] * mat[1][1] * mat[2][2] +
