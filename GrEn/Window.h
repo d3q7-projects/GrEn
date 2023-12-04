@@ -28,7 +28,7 @@ struct windowEvent
 
 struct frameExtra
 {
-	int z;
+	float z;
 };
 
 class Camera;

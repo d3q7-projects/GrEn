@@ -19,6 +19,8 @@ public:
 	GrEn::exception removeTrig(const int index);
 	void resetIteration();
 	GrEn::exception iterate(GrEn::Triangle& prim);
+	void setPos(float x, float y, float z);
+	void getPos(GrEn::mat4<float>*& mat);
 
 private:
 	GrEn::Triangle* primitives;

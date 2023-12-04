@@ -20,31 +20,25 @@ static void draw() {
 
 
 	Geometry triangulation;
-	Geometry triangulation2;
-	Geometry triangulation3;
-	GeometryGroup gg;
-	triangulation.addTrig({ { {-1,0,0}, {1,0,0 }, {0,1.41,0} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {-3,2,-2}, {1,4,0 }, {1,2.41,-4} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.removeTrig(2);
-	triangulation.addTrig({ { {-1,0,0}, {1,0,0 }, {0,1.41,0} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.removeTrig(0);
-	triangulation.removeTrig(1);
-	triangulation.getLen();
-	triangulation.addTrig({ { {-3,2,-2}, {1,4,0 }, {1,2.41,-4} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {-3,2,-3}, {2,4,-1 }, {3,4.41,-1} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {0,0,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,1,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	gg.addGeometry(&triangulation);
-	gg.addGeometry(&triangulation2);
-	gg.addGeometry(&triangulation3);
-	gg.removeGeometry(2);
-	gg.addGeometry(&triangulation);
-	gg.removeGeometry(0);
-	gg.removeGeometry(1);
-	gg.getLen();
-	gg.addGeometry(&triangulation);
+	triangulation.addTrig({ { {0,0,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,1,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
+	triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+
+	triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+
+	triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+
+	triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {1,0,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+
+	triangulation.setPos(-0.5, -0.5, 0);
 
 	GrEn::hexColor color(0xff000000);
 	GrEn::hexColor color2(0xffffff00);
@@ -56,25 +50,17 @@ static void draw() {
 
 	float blueness = 0.0f;
 	int num = 0;
-	Timer t; 
+	Timer t;
 	while (!window.getStatus().quit)
 	{
-		c.addGeometryGroup(&gg);
-		c.render();
-		GrEn::mat3<float> mat = { {1, -1,  2},
-									{-2, 3, -4},
-									{9,  3,  1} };
-		GrEn::mat3<float> mat2 = { {-15.0f / 17.0f, -7.0f / 17.0f, 2.0f / 17.0f},
-									{2,  1,  0},
-									{33.0f / 17.0f, 12.0f / 17.0f, -1.0f / 17.0f} };
-		GrEn::mat3<float> mat3 = { 0 };
-		matMult(mat, mat2, mat3);
 		if (!window.getStatus().quit)
 		{
 			window.fill(color);
-			window.draw(rect);
-			window.draw(rect1);
-			window.draw(rect2);
+			c.addGeometry(&triangulation);
+			c.render();
+			//window.draw(rect);
+			//window.draw(rect1);
+			//window.draw(rect2);
 			window.update();
 			double diff = t.tickAndReset();
 			rect.setColor(rect.getColor().value + 1);

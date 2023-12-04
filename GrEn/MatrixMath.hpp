@@ -237,20 +237,31 @@ void matVecMult(const GrEn::mat3<T>& mat, const GrEn::vec3<T>& vec1, GrEn::vec3<
 template<typename T>
 void matVecMult(const GrEn::mat4<T>& mat, const GrEn::vec4<T>& vec1, GrEn::vec4<T>& vec2)
 {
-	vec2.x = mat[0][0] * vec1.x + mat[0][1] * vec1.y + mat[0][2] * vec1.z + mat[0][2] * vec1.w;
-	vec2.y = mat[1][0] * vec1.x + mat[1][1] * vec1.y + mat[1][2] * vec1.z + mat[1][2] * vec1.w;
-	vec2.z = mat[2][0] * vec1.x + mat[2][1] * vec1.y + mat[2][2] * vec1.z + mat[2][2] * vec1.w;
-	vec2.w = mat[3][0] * vec1.x + mat[3][1] * vec1.y + mat[3][2] * vec1.z + mat[3][2] * vec1.w;
+	vec2.x = mat[0][0] * vec1.x + mat[0][1] * vec1.y + mat[0][2] * vec1.z + mat[0][3] * vec1.w;
+	vec2.y = mat[1][0] * vec1.x + mat[1][1] * vec1.y + mat[1][2] * vec1.z + mat[1][3] * vec1.w;
+	vec2.z = mat[2][0] * vec1.x + mat[2][1] * vec1.y + mat[2][2] * vec1.z + mat[2][3] * vec1.w;
+	vec2.w = mat[3][0] * vec1.x + mat[3][1] * vec1.y + mat[3][2] * vec1.z + mat[3][3] * vec1.w;
 }
 
 template<typename T>
 void matHomVecMult(const GrEn::mat4<T>& mat, const GrEn::vec3<T>& vec1, GrEn::vec3<T>& vec2)
 {
-	T fakeWVal = mat[3][0] * vec1.x + mat[3][1] * vec1.y + mat[3][2] * vec1.z + mat[3][2];
+	T fakeWVal = mat[3][0] * vec1.x + mat[3][1] * vec1.y + mat[3][2] * vec1.z + mat[3][3];
 
-	vec2.x = (mat[0][0] * vec1.x + mat[0][1] * vec1.y + mat[0][2] * vec1.z + mat[0][2]) / fakeWVal;
-	vec2.y = (mat[1][0] * vec1.x + mat[1][1] * vec1.y + mat[1][2] * vec1.z + mat[1][2]) / fakeWVal;
-	vec2.z = (mat[2][0] * vec1.x + mat[2][1] * vec1.y + mat[2][2] * vec1.z + mat[2][2]) / fakeWVal;
+	vec2.x = (mat[0][0] * vec1.x + mat[0][1] * vec1.y + mat[0][2] * vec1.z + mat[0][3]) / fakeWVal;
+	vec2.y = (mat[1][0] * vec1.x + mat[1][1] * vec1.y + mat[1][2] * vec1.z + mat[1][3]) / fakeWVal;
+	vec2.z = (mat[2][0] * vec1.x + mat[2][1] * vec1.y + mat[2][2] * vec1.z + mat[2][3]) / fakeWVal;
+}
+template<typename T>
+void matHomVecMultEq(const GrEn::mat4<T>& mat, GrEn::vec3<T>& vec)
+{
+	T fakeWVal = mat[3][0] * vec.x + mat[3][1] * vec.y + mat[3][2] * vec.z + mat[3][3];
+	T xVal = vec.x;
+	T yVal = vec.y;
+
+	vec.x = (mat[0][0] * vec.x + mat[0][1] * vec.y + mat[0][2] * vec.z + mat[0][3]) / fakeWVal;
+	vec.y = (mat[1][0] * xVal + mat[1][1] * vec.y + mat[1][2] * vec.z + mat[1][3]) / fakeWVal;
+	vec.z = (mat[2][0] * xVal + mat[2][1] * yVal + mat[2][2] * vec.z + mat[2][3]) / fakeWVal;
 }
 
 template<typename T>

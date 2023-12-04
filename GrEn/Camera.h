@@ -9,11 +9,21 @@
 #define GEOMETRIES_PER_FRAME 512
 #define FAR_PLANE 1000.0f
 #define NEAR_PLANE 0.1f
+#define NUM_OF_FRAG_VALS 16
 
 enum class Projection
 {
 	Perspective,
 	Orthographic,
+};
+
+union frag
+{
+	float loop[16];
+	struct
+	{
+		float zBuf;
+	} values;
 };
 
 class Window;

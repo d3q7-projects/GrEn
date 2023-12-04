@@ -111,3 +111,16 @@ GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
 	}
 	return GEOMETRY_END;
 }
+
+void Geometry::setPos(float x, float y, float z)
+{
+	this->worldPosition[0][0] = 2; this->worldPosition[0][1] = 0; this->worldPosition[0][2] = 0; this->worldPosition[0][3] = 2*x;
+	this->worldPosition[1][0] = 0; this->worldPosition[1][1] = 0.5; this->worldPosition[1][2] = 0; this->worldPosition[1][3] = 0.5*y;
+	this->worldPosition[2][0] = 0; this->worldPosition[2][1] = 0; this->worldPosition[2][2] = 1; this->worldPosition[2][3] = z;
+	this->worldPosition[3][0] = 0; this->worldPosition[3][1] = 0; this->worldPosition[3][2] = 0; this->worldPosition[3][3] = 1;
+}
+
+void Geometry::getPos(GrEn::mat4<float>*& mat)
+{
+	mat = &this->worldPosition;
+}
