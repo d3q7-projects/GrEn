@@ -32,6 +32,7 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Frame</Filter>
     </ClCompile>
+    <ClCompile Include="MatrixMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrEn.h">

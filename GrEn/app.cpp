@@ -15,7 +15,7 @@
 static void draw() {
 	GrEn::exception e = 0;
 	Window window("ooly", e);
-	Camera c(window, 90, { 0,0,0 }, { 0,0,1 }, Projection::Perspective);
+	Camera c(window, 70, { 0,0,0 }, { 0,0,1 }, Projection::Perspective);
 	CHECK(e);
 
 
@@ -23,22 +23,24 @@ static void draw() {
 	triangulation.addTrig({ { {0,0,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	triangulation.addTrig({ { {1,1,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.addTrig({ { {0,0,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {1,1,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {0,0,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,2}, {0,1,3 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {1,0,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {1,0,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.setPos(-0.5, -0.5, 0);
+	triangulation.setPos(-0.5, -0.5, 2);
+	triangulation.setScale(0.5, 0.5, 1);
+	triangulation.addRotation(0, 0, M_PI/4);
 
 	GrEn::hexColor color(0xff000000);
 	GrEn::hexColor color2(0xffffff00);
@@ -55,19 +57,18 @@ static void draw() {
 	{
 		if (!window.getStatus().quit)
 		{
+			window.setTitle(std::to_string(c.getFov()));
 			window.fill(color);
 			c.addGeometry(&triangulation);
 			c.render();
-			//window.draw(rect);
-			//window.draw(rect1);
-			//window.draw(rect2);
+
 			window.update();
 			double diff = t.tickAndReset();
 			rect.setColor(rect.getColor().value + 1);
 			num++;
 			if (num % 100 == 0)
 			{
-				window.setTitle(std::to_string(1 / t.getAverage() * 1000));
+				//window.setTitle(std::to_string(1 / t.getAverage() * 1000));
 			}
 		}
 	}

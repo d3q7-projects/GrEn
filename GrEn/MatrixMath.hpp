@@ -293,15 +293,9 @@ void matTranspose(GrEn::mat3<T>& mat)
 template<typename T>
 void matGetTranspose(const GrEn::mat3<T>& mat1, GrEn::mat3<T>& mat2)
 {
-	mat2[0][0] = mat1[0][0];
-	mat2[1][1] = mat1[1][1];
-	mat2[2][2] = mat1[2][2];
-	mat2[0][1] = mat1[1][0];
-	mat2[0][2] = mat1[2][0];
-	mat2[1][0] = mat1[0][1];
-	mat2[1][2] = mat1[2][1];
-	mat2[2][0] = mat1[0][2];
-	mat2[2][1] = mat1[1][2];
+	mat2[0][0] = mat1[0][0];	mat2[0][1] = mat1[1][0];	mat2[0][2] = mat1[2][0];
+	mat2[1][0] = mat1[0][1];	mat2[1][1] = mat1[1][1];	mat2[1][2] = mat1[2][1];
+	mat2[2][0] = mat1[0][2];	mat2[2][1] = mat1[1][2];	mat2[2][2] = mat1[2][2];
 }
 
 template<typename T>
@@ -328,7 +322,25 @@ void matGetInverse(const GrEn::mat3<T>& mat1, GrEn::mat3<T>& mat2)
 	matScalarDivEq(mat2, matDeterminent(mat1));
 }
 
+void matGetRotationX(GrEn::mat3<float>& mat, const float angle);
+void matGetRotationY(GrEn::mat3<float>& mat, const float angle);
+void matGetRotationZ(GrEn::mat3<float>& mat, const float angle);
+void matGetRotationAxis(GrEn::mat3<float>& mat, const GrEn::vec3<float>& axis, const float angle);
+//void matGetRotationXYZ(GrEn::mat3<float>& mat, float aX, float aY, float aZ)
+//{
+//	const float cosX = cosf(aX);
+//	const float cosY = cosf(aY);
+//	const float cosZ = cosf(aZ);
+//	const float sinX = sinf(aX);
+//	const float sinY = sinf(aY);
+//	const float sinZ = sinf(aZ);
+//	
+//	mat[0][0] = cosY * cosZ;	mat[0][1] = sinX * sinY * cosZ - cosX * sinZ;	mat[0][2] = cosX * sinY * cosZ + sinX * sinZ;
+//	mat[1][0] = cosY * sinZ;	mat[1][1] = sinX * sinY * sinZ + cosX * cosZ;	mat[1][2] = cosX * sinY * sinZ - sinX * cosZ;
+//	mat[2][0] = -sinY;			mat[2][1] = sinX * cosY;						mat[2][2] = cosX * cosY;
+//}
 
+void matGetRotationXYZ(GrEn::mat4<float>& mat, const float aX, const float aY, const float aZ);
 
 template<typename T>
 void matPrint(const GrEn::mat3<T>& mat1) {

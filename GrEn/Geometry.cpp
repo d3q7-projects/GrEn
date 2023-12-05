@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include "MatrixMath.hpp"
 #define GREN_OOB 3
 
 //TODO: seems that both Geometry and Geometry group have the same structure so i might as well turn it to an abstract class
@@ -15,9 +16,9 @@ inline bool isNotNull(const GrEn::Triangle& t) {
 		t.vertex[2].z;
 }
 
-Geometry::Geometry() : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation() { }
+Geometry::Geometry() : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({1,1,1}) { }
 
-Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), iter(0), available(len), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
+Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), iter(0), available(len), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({ 1,1,1 })
 {
 	for (size_t i = 0; i < len; i++)
 	{
@@ -36,7 +37,7 @@ Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), ite
 	}
 }
 
-Geometry::Geometry(const std::string& file) : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
+Geometry::Geometry(const std::string& file) : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({ 1,1,1 })
 {
 	_CRT_WARNING_MESSAGE("1", "This function isn't implemented yet");
 	//TODO: implement file object extraction
@@ -112,15 +113,76 @@ GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
 	return GEOMETRY_END;
 }
 
-void Geometry::setPos(float x, float y, float z)
+void Geometry::setPos(const float x, const float y, const float z)
 {
-	this->worldPosition[0][0] = 2; this->worldPosition[0][1] = 0; this->worldPosition[0][2] = 0; this->worldPosition[0][3] = 2*x;
-	this->worldPosition[1][0] = 0; this->worldPosition[1][1] = 0.5; this->worldPosition[1][2] = 0; this->worldPosition[1][3] = 0.5*y;
-	this->worldPosition[2][0] = 0; this->worldPosition[2][1] = 0; this->worldPosition[2][2] = 1; this->worldPosition[2][3] = z;
-	this->worldPosition[3][0] = 0; this->worldPosition[3][1] = 0; this->worldPosition[3][2] = 0; this->worldPosition[3][3] = 1;
+	this->position.x= x;
+	this->position.y= y;
+	this->position.z= z;
 }
 
-void Geometry::getPos(GrEn::mat4<float>*& mat)
+void Geometry::addPos(const float x, const float y, const float z)
 {
-	mat = &this->worldPosition;
+	this->position.x += x;
+	this->position.y += y;
+	this->position.z += z;
+}
+
+void Geometry::getPos(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->position.x;
+	vec.y = this->position.y;
+	vec.z = this->position.z;
+}
+
+void Geometry::setRotation(const float x, const float y, const float z)
+{
+	this->rotation.x = x;
+	this->rotation.y = y;
+	this->rotation.z = z;
+}
+
+void Geometry::addRotation(const float x, const float y, const float z)
+{
+	this->rotation.x += x;
+	this->rotation.y += y;
+	this->rotation.z += z;
+}
+
+void Geometry::getRotation(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->rotation.x;
+	vec.y = this->rotation.y;
+	vec.z = this->rotation.z;
+}
+
+void Geometry::setScale(const float x, const float y, const float z)
+{
+	this->scale.x = x;
+	this->scale.y = y;
+	this->scale.z = z;
+}
+
+void Geometry::setAdd(const float x, const float y, const float z)
+{
+	this->scale.x += x;
+	this->scale.y += y;
+	this->scale.z += z;
+}
+
+void Geometry::getScale(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->scale.x;
+	vec.y = this->scale.y;
+	vec.z = this->scale.z;
+}
+
+void Geometry::getWorldMat(GrEn::mat4<float>& mat) const
+{
+	matGetRotationXYZ(mat, this->rotation.x, this->rotation.y, this->rotation.z);
+
+	mat[0][0] *= this->scale.x;	mat[0][1] *= this->scale.x;	mat[0][2] *= this->scale.x;	mat[0][3] = this->scale.x * this->position.x;
+	mat[1][0] *= this->scale.y;	mat[1][1] *= this->scale.y;	mat[1][2] *= this->scale.y;	mat[1][3] = this->scale.y * this->position.y;
+	mat[2][0] *= this->scale.z;	mat[2][1] *= this->scale.z;	mat[2][2] *= this->scale.z;	mat[2][3] = this->scale.z * this->position.z;
+	mat[3][0] = 0;				mat[3][1] = 0;				mat[3][2] = 0;				mat[3][3] = 1;
+
 }

@@ -3,14 +3,14 @@
 #include "MatrixMath.hpp"
 
 Camera::Camera(const int w, const int h, const float fov, const GrEn::vec3<float>& pos, const GrEn::vec3<float>& dir, const Projection p)
-	: attachedWindow(nullptr), width(w), height(h), fov(fov), worldPosition(pos), direction(dir), outputColor(new unsigned int[w * h]), pixelExtras(new frameExtra[w * h]),
+	: attachedWindow(nullptr), width(w), height(h), fov(static_cast<float>(M_PI)* fov / 180.0f), worldPosition(pos), direction(dir), outputColor(new unsigned int[w * h]), pixelExtras(new frameExtra[w * h]),
 		meshes(new Geometry* [GEOMETRIES_PER_FRAME]), meshGroups(new GeometryGroup* [GEOMETRY_GROUPS_PER_FRAME]), objectToScreenMat(), inversePointtAtMat(),
 	projection(p), meshesBound(0), meshGroupsBound(0)
 {
 }
 
 Camera::Camera(Window& window, const float fov, const GrEn::vec3<float>& pos, const GrEn::vec3<float>& dir, const Projection p)
-	: attachedWindow(&window), width(window.getWidth()), height(window.getHeight()), fov(fov), worldPosition(pos), direction(dir), outputColor(reinterpret_cast<SDL_Surface*>(window.windowFrame)->pixels), pixelExtras(window.windowFrameExtras),
+	: attachedWindow(&window), width(window.getWidth()), height(window.getHeight()), fov(static_cast<float>(M_PI)* fov / 180.0f), worldPosition(pos), direction(dir), outputColor(reinterpret_cast<SDL_Surface*>(window.windowFrame)->pixels), pixelExtras(window.windowFrameExtras),
 	meshes(new Geometry* [GEOMETRIES_PER_FRAME]), meshGroups(new GeometryGroup* [GEOMETRY_GROUPS_PER_FRAME]), objectToScreenMat(), inversePointtAtMat(),
 	projection(p), meshesBound(0), meshGroupsBound(0)
 {
@@ -51,9 +51,24 @@ void Camera::setDir(const GrEn::vec3<float>& direction)
 	this->direction = direction;
 }
 
-void Camera::setFov(const float& fov)
+void Camera::setFovDegree(const float& fov)
+{
+	this->fov = static_cast<float>(M_PI) * fov / 180.0f;
+}
+
+void Camera::setFovRadians(const float& fov)
 {
 	this->fov = fov;
+}
+
+void Camera::addFovDegree(const float& fov)
+{
+	this->fov += static_cast<float>(M_PI) * fov / 180.0f;
+}
+
+void Camera::addFovRadians(const float& fov)
+{
+	this->fov += fov;
 }
 
 void Camera::setWidth(const int& width)
@@ -148,6 +163,7 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 	frag lineFrags = { {0} };
 
 	unsigned int base = 0xff00f000;
+	unsigned int base2 = 0xfff00000;
 	unsigned int col = 0;
 	int fakeX0 = x0;
 	int dx1 = 0, sx1 = 0;
@@ -170,7 +186,7 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 			err2 = (dx2 > dy2 ? dx2 : -dy2) / 2;
 
 
-			for (; x0 != x1;) {
+			for (; x0 != x1 || y0 != y1;) {
 				col++;
 				tempErr = err;
 				tempErr2 = err2;
@@ -182,7 +198,7 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 					
 					lineSlope = (x0 < fakeX0 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (fakeX0 - x0) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (x0 - fakeX0));
 					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf  : x0x2Lerp.values.zBuf;
-					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j < (x0 < fakeX0 ? fakeX0 : x0); j++)
+					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j <= (x0 < fakeX0 ? fakeX0 : x0); j++)
 					{
 						lineFrags.values.zBuf += lineSlope;
 						if (0 <= j && j <= w && 0 <= y0 && y0 <= h && (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf))
@@ -197,12 +213,11 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 				}
 			}
 
-
 			dx1 = abs(x2 - x0); sx1 = x0 < x2 ? 1 : -1;
 			dy = abs(y2 - y0); sy = y0 < y2 ? 1 : -1;
 			err = (dx1 > dy ? dx1 : -dy) / 2;
 
-			for (; x0 != x2;) {
+			for (; x0 != x2 || y0 != y2;) {
 				col++;
 				tempErr = err;
 				tempErr2 = err2;
@@ -232,19 +247,19 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 			x1 = static_cast<int>(primitive.vertex[1].x);
 			y0 = static_cast<int>(primitive.vertex[0].y);
 			y1 = static_cast<int>(primitive.vertex[1].y);
-			continue;
+			break;
 		case 1:
 			x0 = static_cast<int>(primitive.vertex[0].x);
 			x1 = static_cast<int>(primitive.vertex[2].x);
 			y0 = static_cast<int>(primitive.vertex[0].y);
 			y1 = static_cast<int>(primitive.vertex[2].y);
-			continue;
+			break;
 		case 2:
 			x0 = static_cast<int>(primitive.vertex[1].x);
 			x1 = static_cast<int>(primitive.vertex[2].x);
 			y0 = static_cast<int>(primitive.vertex[1].y);
 			y1 = static_cast<int>(primitive.vertex[2].y);
-			continue;
+			break;
 		default:
 			return;
 		}
@@ -255,7 +270,7 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 
 		for (;;) {
 
-			if (0 <= primitive.vertex[0].x && primitive.vertex[0].x <= w && 0 <= primitive.vertex[0].y && primitive.vertex[0].y <= h)
+			if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
 			{
 				reinterpret_cast<unsigned int*>(outputColor)[x0 + y0 * w] = 0xffff0000;
 				col += 2;
@@ -318,20 +333,20 @@ void Camera::render()
 	this->calcObjectToScreenMat();
 	int halvedWidth = this->width >> 1;
 	int halvedHeight = this->height >> 1;
-	GrEn::mat4<float>* objectToWorldMat = nullptr;
+	GrEn::mat4<float> objectToWorldMat;
 	this->updateFields();
 
 	for (size_t i = 0; i < this->meshGroupsBound; i++)
 	{
 		while (this->meshGroups[i]->iterate(renderedGeom) != GEOMETRY_END)
 		{
-			renderedGeom->getPos(objectToWorldMat);
+			renderedGeom->getWorldMat(objectToWorldMat);
 			while (renderedGeom->iterate(processedPrim) != GEOMETRY_END)
 			{
 				//add prim transformation to camera space 
-				matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[0]);
-				matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[1]);
-				matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[2]);
+				matHomVecMultEq(objectToWorldMat, processedPrim.vertex[0]);
+				matHomVecMultEq(objectToWorldMat, processedPrim.vertex[1]);
+				matHomVecMultEq(objectToWorldMat, processedPrim.vertex[2]);
 					
 				//add filtering functions like frustum culling, backface culling etc.
 				matHomVecMult(this->objectToScreenMat, processedPrim.vertex[0], renderedPrim.vertex[0]);
@@ -350,13 +365,13 @@ void Camera::render()
 
 	for (size_t i = 0; i < this->meshesBound; i++)
 	{
-		this->meshes[i]->getPos(objectToWorldMat);
+		this->meshes[i]->getWorldMat(objectToWorldMat);
 		while (this->meshes[i]->iterate(processedPrim) != GEOMETRY_END)
 		{
 			//add prim transformation to world space 
-			matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[0]);
-			matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[1]);
-			matHomVecMultEq(*objectToWorldMat, processedPrim.vertex[2]);
+			matHomVecMultEq(objectToWorldMat, processedPrim.vertex[0]);
+			matHomVecMultEq(objectToWorldMat, processedPrim.vertex[1]);
+			matHomVecMultEq(objectToWorldMat, processedPrim.vertex[2]);
 
 			//add filtering functions like frustum culling, backface culling etc.
 			matHomVecMult(this->objectToScreenMat, processedPrim.vertex[0], renderedPrim.vertex[0]);
@@ -402,21 +417,21 @@ void Camera::calcInversePointAtMat()
 
 void Camera::calcObjectToScreenMat()
 {
-	const float fovFactor = 1.0f/tanf(this->fov / 2);
+	const float fovFactor = 1.0f / (tanf(this->fov / 2.0f));
 	const float farNearFactor = FAR_PLANE / (FAR_PLANE - NEAR_PLANE);
 	switch (this->projection)
 	{
 	case Projection::Orthographic:
 		//TODO: (priority: 2) finish this
 	case Projection::Perspective:
-		this->objectToScreenMat[0][0] = (static_cast<float>(this->height) / this->width) * fovFactor; this->objectToScreenMat[0][1] = 0;
-																				this->objectToScreenMat[0][2] = 0; this->objectToScreenMat[0][3] = 0;
-		this->objectToScreenMat[1][0] = 0; this->objectToScreenMat[1][1] = fovFactor; this->objectToScreenMat[1][2] = 0;
-																				this->objectToScreenMat[1][3] = 0;
-		this->objectToScreenMat[2][0] = 0; this->objectToScreenMat[2][1] = 0; this->objectToScreenMat[2][2] = farNearFactor;
-																				this->objectToScreenMat[2][3] = -NEAR_PLANE * farNearFactor;
-		this->objectToScreenMat[3][0] = 0; this->objectToScreenMat[3][1] = 0; this->objectToScreenMat[3][2] = 1;
-																				this->objectToScreenMat[3][3] = 0;
+		this->objectToScreenMat[0][0] = (static_cast<float>(this->height) / this->width) * fovFactor;
+											this->objectToScreenMat[0][1] = 0;			this->objectToScreenMat[0][2] = 0;				this->objectToScreenMat[0][3] = 0;
+
+		this->objectToScreenMat[1][0] = 0;	this->objectToScreenMat[1][1] = fovFactor;	this->objectToScreenMat[1][2] = 0;				this->objectToScreenMat[1][3] = 0;
+
+		this->objectToScreenMat[2][0] = 0;	this->objectToScreenMat[2][1] = 0;			this->objectToScreenMat[2][2] = farNearFactor;	this->objectToScreenMat[2][3] = -NEAR_PLANE * farNearFactor;
+
+		this->objectToScreenMat[3][0] = 0;	this->objectToScreenMat[3][1] = 0;			this->objectToScreenMat[3][2] = 1;				this->objectToScreenMat[3][3] = 0;
 		break;
 	default:
 		break;

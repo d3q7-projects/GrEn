@@ -41,7 +41,10 @@ public:
 
 	void setPos(const GrEn::vec3<float>& position);
 	void setDir(const GrEn::vec3<float>& direction);
-	void setFov(const float& fov);
+	void setFovDegree(const float& fov);
+	void setFovRadians(const float& fov);
+	void addFovDegree(const float& fov);
+	void addFovRadians(const float& fov);
 	void setWidth(const int& width);
 	void setHeight(const int& height);
 	
