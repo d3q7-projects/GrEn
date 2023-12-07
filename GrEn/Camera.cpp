@@ -165,7 +165,6 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 	unsigned int base = 0xff00f000;
 	unsigned int base2 = 0xfff00000;
 	unsigned int col = 0;
-	int fakeX0 = x0;
 	int dx1 = 0, sx1 = 0;
 	int dx2 = 0, sx2 = 0;
 	int dy = 0, sy = 0;
@@ -173,6 +172,8 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 	int err = 0, tempErr = 0;
 	int err2 = 0, tempErr2 = 0;
 	int minDx = 0;
+	int completedSegs = 0;
+	int fakeX0 = x0;
 	for (int i = 0; i < 3; i++)
 	{
 		switch (i)
@@ -182,67 +183,101 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 			dx2 = abs(x2 - x0); sx2 = x0 < x2 ? 1 : -1;
 			dy = abs(y1 - y0); sy = y0 < y1 ? 1 : -1;
 			dy2 = abs(y2 - y0); sy2 = y0 < y2 ? 1 : -1;
+
 			err = (dx1 > dy ? dx1 : -dy) / 2;
 			err2 = (dx2 > dy2 ? dx2 : -dy2) / 2;
 
-
-			for (; x0 != x1 || y0 != y1;) {
+			for (;;) {
 				col++;
+
+				if (x0 == x1 && y0 == y1) break;
 				tempErr = err;
 				tempErr2 = err2;
 				if (tempErr > -dx1 && tempErr >= dy) { err -= dy; x0 += sx1; }
-				if (tempErr2 > -dx2 && tempErr2 >= dy2) { err2 -= dy2; fakeX0 += sx2; }
-				if (tempErr < dy && tempErr2 < dy2) {
+				if (tempErr2 > -dx2 && tempErr2 >= dy2 && y0 != y1) { err2 -= dy2; fakeX0 += sx2; }
+				if (tempErr < dy && (tempErr2 < dy2 || y0 == y1)) {
 					err += dx1;
 					err2 += dx2;
-					
+					if (y0 != y1) {
+						y0 += sy;
+					}
+
 					lineSlope = (x0 < fakeX0 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (fakeX0 - x0) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (x0 - fakeX0));
-					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf  : x0x2Lerp.values.zBuf;
+					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf : x0x2Lerp.values.zBuf;
 					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j <= (x0 < fakeX0 ? fakeX0 : x0); j++)
 					{
 						lineFrags.values.zBuf += lineSlope;
 						if (0 <= j && j <= w && 0 <= y0 && y0 <= h && (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf))
 						{
 							pixelExtras[j + y0 * w].z = lineFrags.values.zBuf;
-							reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base;
+							//reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base2;//0xff0000ff;
 						}
 					}
-					y0 += sy;
 					x0x1Lerp.values.zBuf += z01FragSlopes.values.zBuf;
 					x0x2Lerp.values.zBuf += z02FragSlopes.values.zBuf;
+
+
+					if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
+					{
+						reinterpret_cast<unsigned int*>(outputColor)[x0 + 0 + (y0 + 0) * w] = 0xff00ff00;
+					}
+					if (0 <= fakeX0 && fakeX0 < w && 0 <= y0 && y0 < h)
+					{
+						reinterpret_cast<unsigned int*>(outputColor)[fakeX0 + 0 + (y0 + 0) * w] = 0xff00ff00;
+					}
 				}
 			}
 
-			dx1 = abs(x2 - x0); sx1 = x0 < x2 ? 1 : -1;
-			dy = abs(y2 - y0); sy = y0 < y2 ? 1 : -1;
-			err = (dx1 > dy ? dx1 : -dy) / 2;
+			dx1 = abs(x2 - x1); sx1 = x1 < x2 ? 1 : -1;
+			//dx2 = abs(x2 - fakeX0); sx2 = fakeX0 < x2 ? 1 : -1;
+			dy = abs(y2 - y1); sy = y1 < y2 ? 1 : -1;
+			//dy2 = dy;
 
-			for (; x0 != x2 || y0 != y2;) {
+			err = (dx1 > dy ? dx1 : -dy) / 2;
+			err2 = (dx2 > dy2 ? dx2 : -dy2) / 2;
+
+			for (;;) {
 				col++;
+
+				if (x0 == x2 && y0 == y2) break;
 				tempErr = err;
 				tempErr2 = err2;
 				if (tempErr > -dx1 && tempErr >= dy) { err -= dy; x0 += sx1; }
-				if (tempErr2 > -dx2 && tempErr2 >= dy2) { err2 -= dy2; fakeX0 += sx2; }
-				if (tempErr < dy && tempErr2 < dy2) {
+				if (tempErr2 > -dx2 && tempErr2 >= dy2 && y0 != y2) { err2 -= dy2; fakeX0 += sx2; }
+				if (tempErr < dy && (tempErr2 < dy2 || y0 == y2)) {
 					err += dx1;
 					err2 += dx2;
 
 					lineSlope = (x0 < fakeX0 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (fakeX0 - x0) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (x0 - fakeX0));
 					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf : x0x2Lerp.values.zBuf;
-					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j < (x0 < fakeX0 ? fakeX0 : x0); j++)
+					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j <= (x0 < fakeX0 ? fakeX0 : x0); j++)
 					{
 						lineFrags.values.zBuf += lineSlope;
-						if (0 <= j && j <= w && 0 <= y0 && y0 <= h && (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf))
+						if (0 <= j && j <= w && 0 <= y0 && y0 < h /*&& (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf)*/)
 						{
 							pixelExtras[j + y0 * w].z = lineFrags.values.zBuf;
-							reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base;
+							//reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base2;//0xff0000ff;
 						}
 					}
-					y0 += sy;
-					x0x1Lerp.values.zBuf += z12FragSlopes.values.zBuf;
+					x0x1Lerp.values.zBuf += z01FragSlopes.values.zBuf;
 					x0x2Lerp.values.zBuf += z02FragSlopes.values.zBuf;
+
+					if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
+					{
+						//reinterpret_cast<unsigned int*>(outputColor)[x0 + 0 + (y0 + 0) * w] = 0xff00ff00;
+					}
+					if (0 <= fakeX0 && fakeX0 < w && 0 <= y0 && y0 < h)
+					{
+						//reinterpret_cast<unsigned int*>(outputColor)[fakeX0 + 0 + (y0 + 0) * w] = 0xff00ff00;
+					}
+
+					if (y0 != y2) {
+						y0 += sy;
+					}
 				}
 			}
+
+
 			x0 = static_cast<int>(primitive.vertex[0].x);
 			x1 = static_cast<int>(primitive.vertex[1].x);
 			y0 = static_cast<int>(primitive.vertex[0].y);
@@ -264,22 +299,22 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 			return;
 		}
 
-		dx1 = abs(x1 - x0), sx1 = x0 < x1 ? 1 : -1;
-		dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-		err = (dx1 > dy ? dx1 : -dy) / 2, tempErr;
+		//dx1 = abs(x1 - x0), sx1 = x0 < x1 ? 1 : -1;
+		//dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+		//err = (dx1 > dy ? dx1 : -dy) / 2, tempErr;
 
-		for (;;) {
+		//for (;;) {
 
-			if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
-			{
-				reinterpret_cast<unsigned int*>(outputColor)[x0 + y0 * w] = 0xffff0000;
-				col += 2;
-			}
-			if (x0 == x1 && y0 == y1) break;
-			tempErr = err;
-			if (tempErr > -dx1) { err -= dy; x0 += sx1; }
-			if (tempErr < dy) { err += dx1; y0 += sy; }
-		}
+		//	if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
+		//	{
+		//		//reinterpret_cast<unsigned int*>(outputColor)[x0 + y0 * w] = 0xff000000 + (0xf0 << (i*8));
+		//		//col += 2;
+		//	}
+		//	if (x0 == x1 && y0 == y1) break;
+		//	tempErr = err;
+		//	if (tempErr > -dx1) { err -= dy; x0 += sx1; }
+		//	if (tempErr < dy) { err += dx1; y0 += sy; }
+		//}
 	}
 
 }

@@ -133,7 +133,8 @@ void Window::fill(GrEn::hexColor color)
 		int i;
 		float f = 1;
 	} farPlane;
-	SDL_memset4(this->windowFrameExtras, farPlane.i, this->getWidth() * this->getHeight());
+	//upgrade to use SIMD
+	SDL_memset4(this->windowFrameExtras, farPlane.i, static_cast<size_t>(this->getWidth())* this->getHeight());
 }
 
 windowState Window::getState() const

@@ -20,13 +20,13 @@ static void draw() {
 
 
 	Geometry triangulation;
-	triangulation.addTrig({ { {0,0,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
-	triangulation.addTrig({ { {1,1,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {0,0,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	//triangulation.addTrig({ { {1,1,2}, {1,0,2 }, {0,1,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
 	//triangulation.addTrig({ { {0,0,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	//triangulation.addTrig({ { {1,1,3}, {1,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	//triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
+	triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	//triangulation.addTrig({ { {1,1,2}, {1,0,3 }, {1,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
 	//triangulation.addTrig({ { {0,1,2}, {0,0,3 }, {0,1,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
@@ -38,9 +38,10 @@ static void draw() {
 	//triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {1,0,3} }, {{0}, {0}, {0}} , {{0}, {0}} });
 	//triangulation.addTrig({ { {1,0,2}, {0,0,3 }, {0,0,2} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
-	triangulation.setPos(-0.5, -0.5, 2);
-	triangulation.setScale(0.5, 0.5, 1);
-	triangulation.addRotation(0, 0, M_PI/4);
+	triangulation.setPos(0, 0, 0);
+	triangulation.setScale(1,1, 1);
+	triangulation.addRotation(0, 0, 0.01f + 2*M_PI/2);
+	//triangulation.addRotation(0, 0, 0.001f);
 
 	GrEn::hexColor color(0xff000000);
 	GrEn::hexColor color2(0xffffff00);
@@ -57,10 +58,11 @@ static void draw() {
 	{
 		if (!window.getStatus().quit)
 		{
-			window.setTitle(std::to_string(c.getFov()));
+			//window.setTitle(std::to_string(c.getFov()));
 			window.fill(color);
 			c.addGeometry(&triangulation);
 			c.render();
+			triangulation.addRotation(0, 0, 0.001f);
 
 			window.update();
 			double diff = t.tickAndReset();
@@ -68,7 +70,7 @@ static void draw() {
 			num++;
 			if (num % 100 == 0)
 			{
-				//window.setTitle(std::to_string(1 / t.getAverage() * 1000));
+				window.setTitle(std::to_string(1 / t.getAverage() * 1000));
 			}
 		}
 	}
