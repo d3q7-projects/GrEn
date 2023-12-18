@@ -2,7 +2,7 @@
 #include "Geometry.h"
 #include "GrEnException.h"
 
-#define GEOMETRY_MAX 128
+#define GEOMETRY_MAX 256
 
 class GeometryGroup
 {

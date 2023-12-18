@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <SDL.h>
 #define NO_EXCEP 0
 #define SDL_WINDOW_CREATE_FAIL 2
 #define DEFAULT_WIDTH 1280

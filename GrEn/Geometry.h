@@ -29,6 +29,7 @@ public:
 	void setAdd(const float x, const float y, const float z);
 	void getScale(GrEn::vec3<float>& vec) const;
 	void getWorldMat(GrEn::mat4<float>& mat) const;
+	//add ability to increase geometry length furthur
 
 private:
 	GrEn::Triangle* primitives;

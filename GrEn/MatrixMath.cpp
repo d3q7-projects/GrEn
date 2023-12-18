@@ -47,4 +47,20 @@ void matGetRotationXYZ(GrEn::mat4<float>& mat, const float aX, const float aY, c
 	mat[3][0] = 0;					mat[3][1] = 0;														mat[3][2] = 0;														mat[3][3] = 1;
 }
 
+void matGetScale(GrEn::mat4<float>& mat, const float sX, const float sY, const float sZ)
+{
+	mat[0][0] = sX;	mat[0][1] = 0;	mat[0][2] = 0;	mat[0][3] = 0;
+	mat[1][0] = 0;	mat[1][1] = sY;	mat[1][2] = 0;	mat[1][3] = 0;
+	mat[2][0] = 0;	mat[2][1] = 0;	mat[2][2] = sZ;	mat[2][3] = 0;
+	mat[3][0] = 0;	mat[3][1] = 0;	mat[3][2] = 0;	mat[3][3] = 1;
+}
+
+void matGetTranslation(GrEn::mat4<float>& mat, const float tX, const float tY, const float tZ)
+{
+	mat[0][0] = 1;	mat[0][1] = 0;	mat[0][2] = 0;	mat[0][3] = tX;
+	mat[1][0] = 0;	mat[1][1] = 1;	mat[1][2] = 0;	mat[1][3] = tY;
+	mat[2][0] = 0;	mat[2][1] = 0;	mat[2][2] = 1;	mat[2][3] = tZ;
+	mat[3][0] = 0;	mat[3][1] = 0;	mat[3][2] = 0;	mat[3][3] = 1;
+}
+
 

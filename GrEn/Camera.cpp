@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <SDL.h>
 #include "VectorMath.hpp"
 #include "MatrixMath.hpp"
 
@@ -121,23 +122,24 @@ void Camera::addGeometryGroup(GeometryGroup* mesh)
 	}
 }
 
-
 /// <summary>
 /// This scanline function goes over the lines of triangles using the frame and triangle info
 /// it lerps over the attributes of the triangle's vertices and draws it on screen after frag-calculations(shaders).
 /// 
 /// In the future this function will be multi-threaded on the cpu to render multiple triangles at the same time(for non-gpu usage)
 /// </summary>
-static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frameExtra* pixelExtras, int& w, int& h) {
+static inline void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frameExtra* pixelExtras, int& w, int& h) {
 	/*
 	* A scanline based on the well known line algorithm which allows lerping with almost 0 float point arithmatic
 	* the lerps are a union of a buffer holding all the lerp values and a struct that tries to easily divide the buffer to its content
 	*/
 	
-	int x0 = static_cast<int>(primitive.vertex[0].x);
+	int x01 = static_cast<int>(primitive.vertex[0].x);
+	int x02 = static_cast<int>(primitive.vertex[0].x);
 	int x1 = static_cast<int>(primitive.vertex[1].x);
 	int x2 = static_cast<int>(primitive.vertex[2].x);
-	int y0 = static_cast<int>(primitive.vertex[0].y);
+	int y01 = static_cast<int>(primitive.vertex[0].y);
+	int y02 = static_cast<int>(primitive.vertex[0].y);
 	int y1 = static_cast<int>(primitive.vertex[1].y);
 	int y2 = static_cast<int>(primitive.vertex[2].y);
 
@@ -150,7 +152,7 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 	frag x0x2Lerp = { {primitive.vertex[0].z} };
 
 	//if any of the divisions is by 0 then it will be skipped as the primitives wont be drawn
-	float ySlope01 = 1/(primitive.vertex[1].y-primitive.vertex[0].y);
+	float ySlope01 = 1/(primitive.vertex[1].y - primitive.vertex[0].y);
 	float ySlope02 = 1/(primitive.vertex[2].y - primitive.vertex[0].y);
 	float ySlope12 = 1/(primitive.vertex[2].y - primitive.vertex[1].y);
 
@@ -158,165 +160,76 @@ static void scanline(GrEn::Triangle& primitive, void*& outputColor, struct frame
 
 	frag z01FragSlopes = { {(primitive.vertex[1].z - primitive.vertex[0].z) * ySlope01} };
 	frag z02FragSlopes = { {(primitive.vertex[2].z - primitive.vertex[0].z) * ySlope02} };
-	frag z12FragSlopes = { {(primitive.vertex[2].z - primitive.vertex[1].z) * ySlope02} };
+	frag z12FragSlopes = { {(primitive.vertex[2].z - primitive.vertex[1].z) * ySlope12} };
 
 	frag lineFrags = { {0} };
+	frag lineSlopes = { {0} };
 
-	unsigned int base = 0xff00f000;
+	int dx01 = abs(x1 - x01), sx01 = x01 < x1 ? 1 : -1;
+	int dy01 = abs(y1 - y01), sy01 = y01 < y1 ? 1 : -1;
+	int err01 = (dx01 > dy01 ? dx01 : -dy01) / 2, tempErr01 = 0;
+
+	int dx02 = abs(x2 - x02), sx02 = x02 < x2 ? 1 : -1;
+	int dy02 = abs(y2 - y02), sy02 = y02 < y2 ? 1 : -1;
+	int err02 = (dx02 > dy02 ? dx02 : -dy02) / 2, tempErr02 = 0;
+
+	int draw01 = 0, draw02= 0;
+	bool do01 = true, do02= true;
+
 	unsigned int base2 = 0xfff00000;
 	unsigned int col = 0;
-	int dx1 = 0, sx1 = 0;
-	int dx2 = 0, sx2 = 0;
-	int dy = 0, sy = 0;
-	int dy2 = 0, sy2 = 0;
-	int err = 0, tempErr = 0;
-	int err2 = 0, tempErr2 = 0;
-	int minDx = 0;
-	int completedSegs = 0;
-	int fakeX0 = x0;
-	for (int i = 0; i < 3; i++)
-	{
-		switch (i)
+
+	for (;;) {
+		
+		if (do01)
 		{
-		case 0:
-			dx1 = abs(x1 - x0); sx1 = x0 < x1 ? 1 : -1;
-			dx2 = abs(x2 - x0); sx2 = x0 < x2 ? 1 : -1;
-			dy = abs(y1 - y0); sy = y0 < y1 ? 1 : -1;
-			dy2 = abs(y2 - y0); sy2 = y0 < y2 ? 1 : -1;
-
-			err = (dx1 > dy ? dx1 : -dy) / 2;
-			err2 = (dx2 > dy2 ? dx2 : -dy2) / 2;
-
-			for (;;) {
-				col++;
-
-				if (x0 == x1 && y0 == y1) break;
-				tempErr = err;
-				tempErr2 = err2;
-				if (tempErr > -dx1 && tempErr >= dy) { err -= dy; x0 += sx1; }
-				if (tempErr2 > -dx2 && tempErr2 >= dy2 && y0 != y1) { err2 -= dy2; fakeX0 += sx2; }
-				if (tempErr < dy && (tempErr2 < dy2 || y0 == y1)) {
-					err += dx1;
-					err2 += dx2;
-					if (y0 != y1) {
-						y0 += sy;
-					}
-
-					lineSlope = (x0 < fakeX0 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (fakeX0 - x0) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (x0 - fakeX0));
-					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf : x0x2Lerp.values.zBuf;
-					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j <= (x0 < fakeX0 ? fakeX0 : x0); j++)
-					{
-						lineFrags.values.zBuf += lineSlope;
-						if (0 <= j && j <= w && 0 <= y0 && y0 <= h && (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf))
-						{
-							pixelExtras[j + y0 * w].z = lineFrags.values.zBuf;
-							//reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base2;//0xff0000ff;
-						}
-					}
-					x0x1Lerp.values.zBuf += z01FragSlopes.values.zBuf;
-					x0x2Lerp.values.zBuf += z02FragSlopes.values.zBuf;
-
-
-					if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
-					{
-						reinterpret_cast<unsigned int*>(outputColor)[x0 + 0 + (y0 + 0) * w] = 0xff00ff00;
-					}
-					if (0 <= fakeX0 && fakeX0 < w && 0 <= y0 && y0 < h)
-					{
-						reinterpret_cast<unsigned int*>(outputColor)[fakeX0 + 0 + (y0 + 0) * w] = 0xff00ff00;
-					}
-				}
+			draw01 = x01;
+			if (x01 == x1 && y01 == y1) {
+				dx01 = abs(x2 - x01), sx01 = x01 < x2 ? 1 : -1;
+				dy01 = abs(y2 - y01), sy01 = y01 < y2 ? 1 : -1;
+				err01 = (dx01 > dy01 ? dx01 : -dy01) / 2, tempErr01;
+				z01FragSlopes.values.zBuf = z12FragSlopes.values.zBuf;
 			}
-
-			dx1 = abs(x2 - x1); sx1 = x1 < x2 ? 1 : -1;
-			//dx2 = abs(x2 - fakeX0); sx2 = fakeX0 < x2 ? 1 : -1;
-			dy = abs(y2 - y1); sy = y1 < y2 ? 1 : -1;
-			//dy2 = dy;
-
-			err = (dx1 > dy ? dx1 : -dy) / 2;
-			err2 = (dx2 > dy2 ? dx2 : -dy2) / 2;
-
-			for (;;) {
-				col++;
-
-				if (x0 == x2 && y0 == y2) break;
-				tempErr = err;
-				tempErr2 = err2;
-				if (tempErr > -dx1 && tempErr >= dy) { err -= dy; x0 += sx1; }
-				if (tempErr2 > -dx2 && tempErr2 >= dy2 && y0 != y2) { err2 -= dy2; fakeX0 += sx2; }
-				if (tempErr < dy && (tempErr2 < dy2 || y0 == y2)) {
-					err += dx1;
-					err2 += dx2;
-
-					lineSlope = (x0 < fakeX0 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (fakeX0 - x0) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (x0 - fakeX0));
-					lineFrags.values.zBuf = x0 < fakeX0 ? x0x1Lerp.values.zBuf : x0x2Lerp.values.zBuf;
-					for (int j = (x0 < fakeX0 ? x0 : fakeX0); j <= (x0 < fakeX0 ? fakeX0 : x0); j++)
-					{
-						lineFrags.values.zBuf += lineSlope;
-						if (0 <= j && j <= w && 0 <= y0 && y0 < h /*&& (pixelExtras[j + y0 * w].z > lineFrags.values.zBuf)*/)
-						{
-							pixelExtras[j + y0 * w].z = lineFrags.values.zBuf;
-							//reinterpret_cast<unsigned int*>(outputColor)[j + y0 * w] = ((col >> 1) & 0x0000ff) + base2;//0xff0000ff;
-						}
-					}
-					x0x1Lerp.values.zBuf += z01FragSlopes.values.zBuf;
-					x0x2Lerp.values.zBuf += z02FragSlopes.values.zBuf;
-
-					if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
-					{
-						//reinterpret_cast<unsigned int*>(outputColor)[x0 + 0 + (y0 + 0) * w] = 0xff00ff00;
-					}
-					if (0 <= fakeX0 && fakeX0 < w && 0 <= y0 && y0 < h)
-					{
-						//reinterpret_cast<unsigned int*>(outputColor)[fakeX0 + 0 + (y0 + 0) * w] = 0xff00ff00;
-					}
-
-					if (y0 != y2) {
-						y0 += sy;
-					}
-				}
+			if (x01 == x2 && y01 == y2) break;
+			tempErr01 = err01;
+			if (tempErr01 > -dx01) { err01 -= dy01; x01 += sx01; }
+			if (tempErr01 < dy01) { err01 += dx01; y01 += sy01;
+				do01 = false;
 			}
-
-
-			x0 = static_cast<int>(primitive.vertex[0].x);
-			x1 = static_cast<int>(primitive.vertex[1].x);
-			y0 = static_cast<int>(primitive.vertex[0].y);
-			y1 = static_cast<int>(primitive.vertex[1].y);
-			break;
-		case 1:
-			x0 = static_cast<int>(primitive.vertex[0].x);
-			x1 = static_cast<int>(primitive.vertex[2].x);
-			y0 = static_cast<int>(primitive.vertex[0].y);
-			y1 = static_cast<int>(primitive.vertex[2].y);
-			break;
-		case 2:
-			x0 = static_cast<int>(primitive.vertex[1].x);
-			x1 = static_cast<int>(primitive.vertex[2].x);
-			y0 = static_cast<int>(primitive.vertex[1].y);
-			y1 = static_cast<int>(primitive.vertex[2].y);
-			break;
-		default:
-			return;
 		}
 
-		//dx1 = abs(x1 - x0), sx1 = x0 < x1 ? 1 : -1;
-		//dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-		//err = (dx1 > dy ? dx1 : -dy) / 2, tempErr;
+		if (do02)
+		{
+			draw02 = x02;
+			tempErr02 = err02;
+			if (tempErr02 > -dx02) { err02 -= dy02; x02 += sx02; }
+			if (tempErr02 < dy02) { err02 += dx02; y02 += sy02;
+				do02 = false;
+			}
+		}
 
-		//for (;;) {
+		if (!(do01 || do02)) {
+			lineSlope = draw01 < draw02 ? (x0x2Lerp.values.zBuf - x0x1Lerp.values.zBuf) / (draw02 - draw01) : (x0x1Lerp.values.zBuf - x0x2Lerp.values.zBuf) / (draw01 - draw02);
+			lineFrags.values.zBuf = draw01 < draw02 ? x0x1Lerp.values.zBuf : x0x2Lerp.values.zBuf;
+			y01--;
+			y02--;
+			for (int scanlineX = (draw01 < draw02 ? draw01 : draw02); scanlineX <= (draw01 < draw02 ? draw02 : draw01); scanlineX++)
+			{
+				if (0 <= scanlineX && scanlineX < w && 0 <= y01 && y01 < h && (pixelExtras[scanlineX + y01 * w].z > lineFrags.values.zBuf))
+				{
+					pixelExtras[scanlineX + y01 * w].z = lineFrags.values.zBuf;
+					const int zCol = lineFrags.values.zBuf * 0xff;
+					reinterpret_cast<unsigned int*>(outputColor)[scanlineX + y01 * w] = base2 + ((col >> 1) & 0x0000ff);// (zCol << 16) + (zCol << 8) + (zCol) + ;
+				}
+				lineFrags.values.zBuf += lineSlope;
+			}
+			col+=2;
 
-		//	if (0 <= x0 && x0 < w && 0 <= y0 && y0 < h)
-		//	{
-		//		//reinterpret_cast<unsigned int*>(outputColor)[x0 + y0 * w] = 0xff000000 + (0xf0 << (i*8));
-		//		//col += 2;
-		//	}
-		//	if (x0 == x1 && y0 == y1) break;
-		//	tempErr = err;
-		//	if (tempErr > -dx1) { err -= dy; x0 += sx1; }
-		//	if (tempErr < dy) { err += dx1; y0 += sy; }
-		//}
+			y01++; y02++; do01 = true; do02 = true;
+			x0x1Lerp.values.zBuf += z01FragSlopes.values.zBuf;
+			x0x2Lerp.values.zBuf += z02FragSlopes.values.zBuf;
+		}
 	}
-
 }
 
 static inline void sortPrim(GrEn::Triangle& t) {
@@ -425,7 +338,7 @@ void Camera::render()
 
 void Camera::calcInversePointAtMat()
 {
-	//TODO: Optimize when we start rendering/using this
+	//TODO: Fix when we start rendering/using this
 	GrEn::vec3<float> forward = { 0,0,0 };
 	GrEn::vec3<float> a;
 	GrEn::vec3<float> newUp;
@@ -453,18 +366,18 @@ void Camera::calcInversePointAtMat()
 void Camera::calcObjectToScreenMat()
 {
 	const float fovFactor = 1.0f / (tanf(this->fov / 2.0f));
-	const float farNearFactor = FAR_PLANE / (FAR_PLANE - NEAR_PLANE);
+	const float farNearFactor = -FAR_PLANE / (FAR_PLANE - NEAR_PLANE);
 	switch (this->projection)
 	{
 	case Projection::Orthographic:
 		//TODO: (priority: 2) finish this
 	case Projection::Perspective:
-		this->objectToScreenMat[0][0] = (static_cast<float>(this->height) / this->width) * fovFactor;
+		this->objectToScreenMat[0][0] = (static_cast<float>(this->height) / static_cast<float>(this->width)) * fovFactor;
 											this->objectToScreenMat[0][1] = 0;			this->objectToScreenMat[0][2] = 0;				this->objectToScreenMat[0][3] = 0;
 
 		this->objectToScreenMat[1][0] = 0;	this->objectToScreenMat[1][1] = fovFactor;	this->objectToScreenMat[1][2] = 0;				this->objectToScreenMat[1][3] = 0;
 
-		this->objectToScreenMat[2][0] = 0;	this->objectToScreenMat[2][1] = 0;			this->objectToScreenMat[2][2] = farNearFactor;	this->objectToScreenMat[2][3] = -NEAR_PLANE * farNearFactor;
+		this->objectToScreenMat[2][0] = 0;	this->objectToScreenMat[2][1] = 0;			this->objectToScreenMat[2][2] = farNearFactor;	this->objectToScreenMat[2][3] = NEAR_PLANE * farNearFactor;
 
 		this->objectToScreenMat[3][0] = 0;	this->objectToScreenMat[3][1] = 0;			this->objectToScreenMat[3][2] = 1;				this->objectToScreenMat[3][3] = 0;
 		break;
