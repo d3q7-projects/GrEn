@@ -184,11 +184,6 @@ void Geometry::getWorldMat(GrEn::mat4<float>& mat) const
 	matGetScale(transformMat, this->scale.x, this->scale.y, this->scale.z);
 	matMult(mat, transformMat, tempMat);
 	matGetTranslation(transformMat, this->position.x, this->position.y, this->position.z);
-	matMult(tempMat, transformMat, mat);
-
-	//mat[0][0] *= this->scale.x;	mat[0][1] *= this->scale.x;	mat[0][2] *= this->scale.x;	mat[0][3] = this->scale.x * this->position.x;
-	//mat[1][0] *= this->scale.y;	mat[1][1] *= this->scale.y;	mat[1][2] *= this->scale.y;	mat[1][3] = this->scale.y * this->position.y;
-	//mat[2][0] *= this->scale.z;	mat[2][1] *= this->scale.z;	mat[2][2] *= this->scale.z;	mat[2][3] = this->scale.z * this->position.z;
-	//mat[3][0] = 0;				mat[3][1] = 0;				mat[3][2] = 0;				mat[3][3] = 1;
+	matMult(transformMat, tempMat, mat);
 
 }

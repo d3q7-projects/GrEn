@@ -133,7 +133,8 @@ static inline void scanline(GrEn::Triangle& primitive, void*& outputColor, struc
 	* A scanline based on the well known line algorithm which allows lerping with almost 0 float point arithmatic
 	* the lerps are a union of a buffer holding all the lerp values and a struct that tries to easily divide the buffer to its content
 	*/
-	
+
+	//cleaner way to save the vertices
 	int x01 = static_cast<int>(primitive.vertex[0].x);
 	int x02 = static_cast<int>(primitive.vertex[0].x);
 	int x1 = static_cast<int>(primitive.vertex[1].x);
@@ -165,18 +166,20 @@ static inline void scanline(GrEn::Triangle& primitive, void*& outputColor, struc
 	frag lineFrags = { {0} };
 	frag lineSlopes = { {0} };
 
+	//01-12 edge varaibles
 	int dx01 = abs(x1 - x01), sx01 = x01 < x1 ? 1 : -1;
 	int dy01 = abs(y1 - y01), sy01 = y01 < y1 ? 1 : -1;
 	int err01 = (dx01 > dy01 ? dx01 : -dy01) / 2, tempErr01 = 0;
 
+	//02 edge varaibles
 	int dx02 = abs(x2 - x02), sx02 = x02 < x2 ? 1 : -1;
 	int dy02 = abs(y2 - y02), sy02 = y02 < y2 ? 1 : -1;
 	int err02 = (dx02 > dy02 ? dx02 : -dy02) / 2, tempErr02 = 0;
 
-	int draw01 = 0, draw02= 0;
-	bool do01 = true, do02= true;
+	int draw01 = 0, draw02= 0; //saves the x value where the scanline is drawn as when we incement y we might also increment x
+	bool do01 = true, do02= true; //both check if a line needs to add a y value
 
-	unsigned int base2 = 0xfff00000;
+	unsigned int base2 = 0xff000000;
 	unsigned int col = 0;
 
 	for (;;) {
@@ -184,11 +187,12 @@ static inline void scanline(GrEn::Triangle& primitive, void*& outputColor, struc
 		if (do01)
 		{
 			draw01 = x01;
-			if (x01 == x1 && y01 == y1) {
+			if (x01 == x1 && y01 == y1) { //swaping to the bottom triangle edge
 				dx01 = abs(x2 - x01), sx01 = x01 < x2 ? 1 : -1;
 				dy01 = abs(y2 - y01), sy01 = y01 < y2 ? 1 : -1;
 				err01 = (dx01 > dy01 ? dx01 : -dy01) / 2, tempErr01;
 				z01FragSlopes.values.zBuf = z12FragSlopes.values.zBuf;
+				x0x1Lerp.values.zBuf = primitive.vertex[1].z; //in some situations where the slope is invalid it might jump
 			}
 			if (x01 == x2 && y01 == y2) break;
 			tempErr01 = err01;
@@ -218,8 +222,8 @@ static inline void scanline(GrEn::Triangle& primitive, void*& outputColor, struc
 				if (0 <= scanlineX && scanlineX < w && 0 <= y01 && y01 < h && (pixelExtras[scanlineX + y01 * w].z > lineFrags.values.zBuf))
 				{
 					pixelExtras[scanlineX + y01 * w].z = lineFrags.values.zBuf;
-					const int zCol = lineFrags.values.zBuf * 0xff;
-					reinterpret_cast<unsigned int*>(outputColor)[scanlineX + y01 * w] = base2 + ((col >> 1) & 0x0000ff);// (zCol << 16) + (zCol << 8) + (zCol) + ;
+					int zCol = (lineFrags.values.zBuf-0.8f)*5 * 0xff;
+					reinterpret_cast<unsigned int*>(outputColor)[scanlineX + y01 * w] = base2 + (zCol << 16) + (zCol << 8) + (zCol);// ((col >> 1) & 0x0000ff) + ;
 				}
 				lineFrags.values.zBuf += lineSlope;
 			}
@@ -366,7 +370,7 @@ void Camera::calcInversePointAtMat()
 void Camera::calcObjectToScreenMat()
 {
 	const float fovFactor = 1.0f / (tanf(this->fov / 2.0f));
-	const float farNearFactor = -FAR_PLANE / (FAR_PLANE - NEAR_PLANE);
+	const float farNearFactor = FAR_PLANE / (FAR_PLANE - NEAR_PLANE);
 	switch (this->projection)
 	{
 	case Projection::Orthographic:
@@ -377,7 +381,7 @@ void Camera::calcObjectToScreenMat()
 
 		this->objectToScreenMat[1][0] = 0;	this->objectToScreenMat[1][1] = fovFactor;	this->objectToScreenMat[1][2] = 0;				this->objectToScreenMat[1][3] = 0;
 
-		this->objectToScreenMat[2][0] = 0;	this->objectToScreenMat[2][1] = 0;			this->objectToScreenMat[2][2] = farNearFactor;	this->objectToScreenMat[2][3] = NEAR_PLANE * farNearFactor;
+		this->objectToScreenMat[2][0] = 0;	this->objectToScreenMat[2][1] = 0;			this->objectToScreenMat[2][2] = farNearFactor;	this->objectToScreenMat[2][3] = -NEAR_PLANE * farNearFactor;
 
 		this->objectToScreenMat[3][0] = 0;	this->objectToScreenMat[3][1] = 0;			this->objectToScreenMat[3][2] = 1;				this->objectToScreenMat[3][3] = 0;
 		break;

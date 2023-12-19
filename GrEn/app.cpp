@@ -39,9 +39,9 @@ static void draw() {
 	triangulation.addTrig({ { {0.5,-0.5,-0.5}, {-0.5,-0.5,0.5 }, {-0.5,-0.5,-0.5} }, {{0}, {0}, {0}} , {{0}, {0}} });
 
 
-	triangulation.setPos(0, 0, 2.6f);
-	triangulation.setScale(2,1, 1);
-	triangulation.addRotation(0, 0, 0);
+	triangulation.setPos(0, 0, 1.5f);
+	triangulation.setScale(1,1, 1);
+	triangulation.addRotation(0, 0.1f, 0);
 	 
 	GrEn::hexColor color(0xff000000);
 	GrEn::hexColor color2(0xffffff00);
@@ -54,22 +54,24 @@ static void draw() {
 	float blueness = 0.0f;
 	int num = 0;
 	Timer t;
+	GrEn::vec3<float> test;
 	while (!window.getStatus().quit)
 	{
 		if (!window.getStatus().quit)
 		{
-			double diff = t.tickAndReset();
+			double diff = t.tickAndReset() / 1000.0f;
 			window.fill(color);
 			c.addGeometry(&triangulation);
 			c.render();
-			triangulation.addRotation(0, 0, 0.0005f * diff);
+			triangulation.addRotation(1.0f * diff, 1.0f * diff, 1.0f* diff);
 
 			window.update();
 			rect.setColor(rect.getColor().value + 1);
 			num++;
-			if (num % 100 == 0)
+			if (num % 1 == 0)
 			{
-				window.setTitle(std::to_string(1 / t.getAverage() * 1000));
+				triangulation.getRotation(test);
+				window.setTitle(std::to_string(1 / t.getAverage() * 1000/*test.z*/));
 			}
 		}
 	}
