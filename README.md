@@ -12,7 +12,8 @@ GrEn is a *user-friendly* C/C++ Graphics Engine Framework for 2D and 3D. It is s
 ## Upcoming Features
 * Flexible filtering options for primitives with several premade ones like frustum culling and backface culling
 * Basic ability to control basic diffuse/ambient color for geometries
-* Ability to send vertex/fragment shaders to the rendering 
+* Ability to send vertex/fragment shaders to the rendering
+* Add a lot of basic 2D/3D objects to use 
 * Optimized rendering pipeline(first running only on CPU)
 
 ## Invisioned features
