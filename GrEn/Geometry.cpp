@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include "MatrixMath.hpp"
 #define GREN_OOB 3
 
 //TODO: seems that both Geometry and Geometry group have the same structure so i might as well turn it to an abstract class
@@ -15,9 +16,9 @@ inline bool isNotNull(const GrEn::Triangle& t) {
 		t.vertex[2].z;
 }
 
-Geometry::Geometry() : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation() { }
+Geometry::Geometry() : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({1,1,1}) { }
 
-Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), iter(0), available(len), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
+Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), iter(0), available(len), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({ 1,1,1 })
 {
 	for (size_t i = 0; i < len; i++)
 	{
@@ -36,7 +37,7 @@ Geometry::Geometry(const GrEn::Triangle* prims, const int len) : bound(len), ite
 	}
 }
 
-Geometry::Geometry(const std::string& file) : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), worldPosition(), rotation()
+Geometry::Geometry(const std::string& file) : bound(0), iter(0), available(0), primitives(new GrEn::Triangle[MAX_PRIMS]), position(), rotation(), scale({ 1,1,1 })
 {
 	_CRT_WARNING_MESSAGE("1", "This function isn't implemented yet");
 	//TODO: implement file object extraction
@@ -105,8 +106,84 @@ GrEn::exception Geometry::iterate(GrEn::Triangle& prim)
 		if (isNotNull(this->primitives[this->iter]))
 		{
 			prim = primitives[this->iter];
+			this->iter++;
 			return 0;
 		}
 	}
 	return GEOMETRY_END;
+}
+
+void Geometry::setPos(const float x, const float y, const float z)
+{
+	this->position.x= x;
+	this->position.y= y;
+	this->position.z= z;
+}
+
+void Geometry::addPos(const float x, const float y, const float z)
+{
+	this->position.x += x;
+	this->position.y += y;
+	this->position.z += z;
+}
+
+void Geometry::getPos(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->position.x;
+	vec.y = this->position.y;
+	vec.z = this->position.z;
+}
+
+void Geometry::setRotation(const float x, const float y, const float z)
+{
+	this->rotation.x = x;
+	this->rotation.y = y;
+	this->rotation.z = z;
+}
+
+void Geometry::addRotation(const float x, const float y, const float z)
+{
+	this->rotation.x += x;
+	this->rotation.y += y;
+	this->rotation.z += z;
+}
+
+void Geometry::getRotation(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->rotation.x;
+	vec.y = this->rotation.y;
+	vec.z = this->rotation.z;
+}
+
+void Geometry::setScale(const float x, const float y, const float z)
+{
+	this->scale.x = x;
+	this->scale.y = y;
+	this->scale.z = z;
+}
+
+void Geometry::setAdd(const float x, const float y, const float z)
+{
+	this->scale.x += x;
+	this->scale.y += y;
+	this->scale.z += z;
+}
+
+void Geometry::getScale(GrEn::vec3<float>& vec) const
+{
+	vec.x = this->scale.x;
+	vec.y = this->scale.y;
+	vec.z = this->scale.z;
+}
+
+void Geometry::getWorldMat(GrEn::mat4<float>& mat) const
+{
+	GrEn::mat4<float> transformMat;
+	GrEn::mat4<float> tempMat;
+	matGetRotationXYZ(mat, this->rotation.x, this->rotation.y, this->rotation.z);
+	matGetScale(transformMat, this->scale.x, this->scale.y, this->scale.z);
+	matMult(mat, transformMat, tempMat);
+	matGetTranslation(transformMat, this->position.x, this->position.y, this->position.z);
+	matMult(transformMat, tempMat, mat);
+
 }

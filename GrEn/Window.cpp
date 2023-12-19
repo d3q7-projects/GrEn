@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <SDL.h>
 #define NO_EXCEP 0
 #define SDL_WINDOW_CREATE_FAIL 2
 #define DEFAULT_WIDTH 1280
@@ -9,14 +10,14 @@ std::map<void*, Window*> Window::windowManager;
 Window::Window(const std::string& name, GrEn::exception& e) : window(0)
 {
 
-	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	this->width = DEFAULT_WIDTH;
 	this->height = DEFAULT_HEIGHT;
 	this->state = windowState::maximized;
 	this->title = name;
 	this->status = { 0 };
-	this->windowFrameExtras = new struct frameExtra[4096 * 4096];
 	this->window = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
+	this->windowFrameExtras = new struct frameExtra[4096 * 4096]();
+	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	Window::windowManager[this->window] = this;
 	e = window ? NO_EXCEP : SDL_WINDOW_CREATE_FAIL;
 	
@@ -120,11 +121,21 @@ void Window::fill(GrEn::rgba color)
 {
 	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowFrame), NULL, GrEn::rgbaToHex(color).value);
+
+	SDL_memset4(this->windowFrameExtras, this->getWidth() * this->getHeight(), 1);
 }
 void Window::fill(GrEn::hexColor color)
 {
 	this->windowFrame = SDL_GetWindowSurface(reinterpret_cast<SDL_Window*>(this->window));
 	SDL_FillRect(reinterpret_cast<SDL_Surface*>(this->windowFrame), NULL, color.value);
+
+	union
+	{
+		int i;
+		float f = 1;
+	} farPlane;
+	//upgrade to use SIMD
+	SDL_memset4(this->windowFrameExtras, farPlane.i, static_cast<size_t>(this->getWidth())* this->getHeight());
 }
 
 windowState Window::getState() const

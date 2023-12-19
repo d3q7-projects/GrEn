@@ -1,5 +1,4 @@
 #pragma once
-#include <SDL.h>
 #include <string>
 #include <map>
 #include "GrEnException.h"
@@ -28,7 +27,7 @@ struct windowEvent
 
 struct frameExtra
 {
-	int z;
+	float z;
 };
 
 class Camera;

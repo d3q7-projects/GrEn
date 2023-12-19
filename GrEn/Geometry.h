@@ -19,13 +19,25 @@ public:
 	GrEn::exception removeTrig(const int index);
 	void resetIteration();
 	GrEn::exception iterate(GrEn::Triangle& prim);
+	void setPos(const float x, const float y, const float z);
+	void addPos(const float x, const float y, const float z);
+	void getPos(GrEn::vec3<float>& vec) const;
+	void setRotation(const float x, const float y, const float z);
+	void addRotation(const float x, const float y, const float z);
+	void getRotation(GrEn::vec3<float>& vec) const;
+	void setScale(const float x, const float y, const float z);
+	void setAdd(const float x, const float y, const float z);
+	void getScale(GrEn::vec3<float>& vec) const;
+	void getWorldMat(GrEn::mat4<float>& mat) const;
+	//add ability to increase geometry length furthur
 
 private:
 	GrEn::Triangle* primitives;
 	int bound;
 	int iter;
 	int available;
-	GrEn::mat4<float> worldPosition;
+	GrEn::vec3<float> position;
+	GrEn::vec3<float> scale;
 	GrEn::vec3<float> rotation;
 };
 

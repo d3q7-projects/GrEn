@@ -9,11 +9,21 @@
 #define GEOMETRIES_PER_FRAME 512
 #define FAR_PLANE 1000.0f
 #define NEAR_PLANE 0.1f
+#define NUM_OF_FRAG_VALS 16
 
 enum class Projection
 {
 	Perspective,
 	Orthographic,
+};
+
+union frag
+{
+	float loop[16];
+	struct
+	{
+		float zBuf;
+	} values;
 };
 
 class Window;
@@ -31,16 +41,25 @@ public:
 
 	void setPos(const GrEn::vec3<float>& position);
 	void setDir(const GrEn::vec3<float>& direction);
-	void setFov(const float& fov);
+	void setFovDegree(const float& fov);
+	void setFovRadians(const float& fov);
+	void addFovDegree(const float& fov);
+	void addFovRadians(const float& fov);
 	void setWidth(const int& width);
 	void setHeight(const int& height);
 	
 	void getInversePointAtMat(GrEn::mat4<float>& mat);
 	void getObjectToScreenMat(GrEn::mat4<float>& mat);
 
+	void addGeometry(Geometry* mesh); //might change from const when we add vertex shaders
+	void addGeometryGroup(GeometryGroup* mesh); //same as above
+
+	void render();
+
 private:
 	void calcInversePointAtMat();
 	void calcObjectToScreenMat();
+	void updateFields();
 	void* outputColor;
 	struct frameExtra* pixelExtras;
 	
@@ -54,8 +73,13 @@ private:
 	GrEn::mat4<float> inversePointtAtMat;
 	GrEn::mat4<float> objectToScreenMat;
 	
-	const GeometryGroup** meshGroups;
-	const Geometry** meshes;
+	GeometryGroup** meshGroups;
+	Geometry** meshes;
+	
+	Window* attachedWindow;
+
+	int meshGroupsBound;
+	int meshesBound;
 
 };
 
